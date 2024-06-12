@@ -15,7 +15,7 @@ fun Navigation(navController: NavHostController) {
             HomeScreen()
         }
         composable(Screen.AlarmScreen.route) {
-            AlarmScreen()
+            AlarmScreen(navController)
         }
         composable(Screen.SettingScreen.route) {
             SettingScreen()

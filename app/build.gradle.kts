@@ -103,4 +103,6 @@ dependencies {
     implementation("com.naver.maps:map-sdk:3.18.0")
     implementation ("io.github.fornewid:naver-map-compose:1.5.7")
     implementation ("io.github.fornewid:naver-map-location:21.0.2")
+
+    implementation("androidx.compose.material:material:1.6.7")
 }
