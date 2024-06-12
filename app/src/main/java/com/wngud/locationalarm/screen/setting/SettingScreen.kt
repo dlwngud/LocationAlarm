@@ -1,4 +1,4 @@
-package com.wngud.locationalarm.screen
+package com.wngud.locationalarm.screen.setting
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

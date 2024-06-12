@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.wngud.locationalarm.screen.AlarmScreen
-import com.wngud.locationalarm.screen.HomeScreen
-import com.wngud.locationalarm.screen.SettingScreen
+import com.wngud.locationalarm.screen.alarm.AlarmScreen
+import com.wngud.locationalarm.screen.home.HomeScreen
+import com.wngud.locationalarm.screen.setting.SettingScreen
 
 @Composable
 fun Navigation(navController: NavHostController) {

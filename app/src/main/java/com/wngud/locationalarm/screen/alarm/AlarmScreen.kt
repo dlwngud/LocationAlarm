@@ -1,4 +1,4 @@
-package com.wngud.locationalarm.screen
+package com.wngud.locationalarm.screen.alarm
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -54,12 +54,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.wngud.locationalarm.R
 import com.wngud.locationalarm.domain.Alarm
+import com.wngud.locationalarm.screen.AppBar
 
 @Composable
 fun AlarmScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
-            AppBarView(
+            AppBar(
                 title = stringResource(R.string.alarm),
                 onBackNavClicked = {
                     navController.navigateUp()

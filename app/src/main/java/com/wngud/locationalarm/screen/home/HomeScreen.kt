@@ -1,4 +1,4 @@
-package com.wngud.locationalarm.screen
+package com.wngud.locationalarm.screen.home
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable

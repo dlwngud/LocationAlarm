@@ -1,6 +1,5 @@
 package com.wngud.locationalarm.screen
 
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -16,7 +15,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBarView(
+fun AppBar(
     title: String,
     onBackNavClicked: () -> Unit = {}
 ) {
@@ -44,5 +43,5 @@ fun AppBarView(
 @Preview(showBackground = true)
 @Composable
 fun AppBarViewPreview() {
-    AppBarView("제목", {})
+    AppBar("제목", {})
 }
