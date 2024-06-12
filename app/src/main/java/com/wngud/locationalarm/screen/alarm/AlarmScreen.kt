@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.wngud.locationalarm.R
+import com.wngud.locationalarm.Screen
 import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.screen.AppBar
 
@@ -73,6 +74,11 @@ fun AlarmScreen(navController: NavHostController) {
             Alarm(2, 0.0, 0.0, 500, "제목3", "내용3", true),
             Alarm(3, 0.0, 0.0, 500, "제목4", "내용4", true),
             Alarm(4, 0.0, 0.0, 500, "제목5", "내용5", false),
+            Alarm(5, 0.0, 0.0, 500, "제목1", "내용1", true),
+            Alarm(6, 0.0, 0.0, 500, "제목2", "내용2", false),
+            Alarm(7, 0.0, 0.0, 500, "제목3", "내용3", true),
+            Alarm(8, 0.0, 0.0, 500, "제목4", "내용4", true),
+            Alarm(9, 0.0, 0.0, 500, "제목5", "내용5", false),
         )
 
         LazyColumn(
@@ -81,7 +87,7 @@ fun AlarmScreen(navController: NavHostController) {
                 .padding(it)
         ) {
             items(alarmList, key = { wish -> wish.id }) { alarm ->
-                StyledCard(alarm)
+                StyledCard(alarm, navController)
             }
         }
     }
@@ -91,6 +97,7 @@ fun AlarmScreen(navController: NavHostController) {
 @Composable
 fun StyledCard(
     alarm: Alarm,
+    navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(16.dp)
@@ -112,6 +119,7 @@ fun StyledCard(
             }
 
             DismissValue.DismissedToEnd -> { // -> 방향 스와이프 (수정)
+                navController.navigate(Screen.DetailAlarmScreen.route)
                 false
             }
 
