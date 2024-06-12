@@ -1,9 +1,17 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
+
+val properties = Properties()
+properties.load(FileInputStream(rootProject.file("local.properties")))
+val naverClientId: String = properties.getProperty("naver_client_id")
 
 android {
     namespace = "com.wngud.locationalarm"
@@ -15,6 +23,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "NAVER_CLIENT_ID", naverClientId)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -40,6 +50,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -85,4 +96,11 @@ dependencies {
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-paging:2.6.1")
 
+    // location
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
+    // naver map
+    implementation("com.naver.maps:map-sdk:3.18.0")
+    implementation ("io.github.fornewid:naver-map-compose:1.5.7")
+    implementation ("io.github.fornewid:naver-map-location:21.0.2")
 }
