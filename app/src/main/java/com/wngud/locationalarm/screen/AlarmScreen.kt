@@ -4,11 +4,14 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,12 +27,15 @@ import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.wngud.locationalarm.R
-import com.wngud.locationalarm.data.AlarmEntity
+import com.wngud.locationalarm.domain.Alarm
 
 @Composable
 fun AlarmScreen(navController: NavHostController) {
@@ -61,10 +67,11 @@ fun AlarmScreen(navController: NavHostController) {
         }
     ) {
         val alarmList = listOf(
-            AlarmEntity(0, 0.0, 0.0, 500, "제목", "내용"),
-            AlarmEntity(1, 0.0, 0.0, 500, "제목", "내용"),
-            AlarmEntity(2, 0.0, 0.0, 500, "제목", "내용"),
-            AlarmEntity(3, 0.0, 0.0, 500, "제목", "내용"),
+            Alarm(0, 0.0, 0.0, 500, "제목1", "내용1", true),
+            Alarm(1, 0.0, 0.0, 500, "제목2", "내용2", false),
+            Alarm(2, 0.0, 0.0, 500, "제목3", "내용3", true),
+            Alarm(3, 0.0, 0.0, 500, "제목4", "내용4", true),
+            Alarm(4, 0.0, 0.0, 500, "제목5", "내용5", false),
         )
 
         LazyColumn(
@@ -82,7 +89,7 @@ fun AlarmScreen(navController: NavHostController) {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun StyledCard(
-    alarmEntity: AlarmEntity,
+    alarm: Alarm,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(16.dp)
@@ -124,7 +131,7 @@ fun StyledCard(
             .padding(horizontal = 8.dp)
             .clip(shape),
         dismissContent = {
-            AlarmItem(alarmEntity, shape) {
+            AlarmItem(alarm, shape) {
                 /*TODO("알림 상세창 이동")*/
             }
         },
@@ -171,7 +178,7 @@ fun StyledCard(
 
 @Composable
 fun AlarmItem(
-    alarmEntity: AlarmEntity,
+    alarm: Alarm,
     shape: Shape,
     onClick: () -> Unit
 ) {
@@ -184,12 +191,39 @@ fun AlarmItem(
         elevation = 10.dp,
         backgroundColor = Color.LightGray
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier.padding(end = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = alarmEntity.title, fontWeight = FontWeight.ExtraBold)
-            Text(text = alarmEntity.content)
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .weight(1f)
+            ) {
+                Text(text = alarm.title, fontWeight = FontWeight.ExtraBold)
+                Text(text = alarm.content)
+            }
+            Switch(
+                checked = alarm.isChecked,
+                onCheckedChange = {
+                    /*TODO("체크 변화 감지)*/
+                },
+                thumbContent = if (alarm.isChecked) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                        )
+                    }
+                } else {
+                    null
+                }
+            )
         }
+
     }
 }
 
