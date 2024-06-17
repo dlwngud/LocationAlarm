@@ -47,7 +47,8 @@ fun DetailAlarmScreen() {
     var content by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
-        topBar = { AppBar(title = "알람 설정") }
+        topBar = { AppBar(title = "알람 설정") },
+        containerColor = MaterialTheme.colorScheme.background,
     ) {
         Column(
             modifier = Modifier

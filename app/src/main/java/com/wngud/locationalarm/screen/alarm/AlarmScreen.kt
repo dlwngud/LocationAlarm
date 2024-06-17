@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
@@ -66,7 +67,8 @@ fun AlarmScreen(navController: NavHostController) {
                 onBackNavClicked = {
                     navController.navigateUp()
                 })
-        }
+        },
+        backgroundColor = MaterialTheme.colorScheme.background,
     ) {
         val alarmList = listOf(
             Alarm(0, 0.0, 0.0, 500, "제목1", "내용1", true),

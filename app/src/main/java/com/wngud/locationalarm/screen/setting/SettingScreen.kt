@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,11 +41,14 @@ fun SettingScreen(navController: NavHostController) {
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(coffeeDrinks[0]) }
 
-    Scaffold(topBar = {
-        AppBar(title = stringResource(R.string.alarm), onBackNavClicked = {
-            navController.navigateUp()
-        })
-    }) {
+    Scaffold(
+        topBar = {
+            AppBar(title = stringResource(R.string.alarm), onBackNavClicked = {
+                navController.navigateUp()
+            })
+        },
+        backgroundColor = MaterialTheme.colorScheme.background,
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -87,7 +90,8 @@ fun SettingScreen(navController: NavHostController) {
                     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {
                         expanded = !expanded
                     }) {
-                        TextField(value = selectedText,
+                        TextField(
+                            value = selectedText,
                             onValueChange = {},
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
