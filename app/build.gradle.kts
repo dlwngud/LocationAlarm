@@ -105,4 +105,7 @@ dependencies {
     implementation ("io.github.fornewid:naver-map-location:21.0.2")
 
     implementation("androidx.compose.material:material:1.6.7")
+
+    // permission
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 }
