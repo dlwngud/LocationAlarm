@@ -40,6 +40,7 @@ fun HomeScreen() {
     ) {
         val locationSource = rememberFusedLocationSource()
         val cameraPositionState = rememberCameraPositionState()
+        var isFirstLoad by remember { mutableStateOf(true) }
 
         NaverMap(
             properties = mapProperties,
@@ -47,8 +48,11 @@ fun HomeScreen() {
             locationSource = locationSource,
             cameraPositionState = cameraPositionState,
             onLocationChange = {
-                cameraPositionState.position =
-                    CameraPosition(LatLng(it.latitude, it.longitude), 15.0)
+                if (isFirstLoad) {
+                    cameraPositionState.position =
+                        CameraPosition(LatLng(it.latitude, it.longitude), 15.0)
+                    isFirstLoad = false
+                }
             }
         )
     }
