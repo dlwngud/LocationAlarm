@@ -110,7 +110,8 @@ fun PermissionScreen() {
     }
 
     if (showPermissionDialog) {
-        ShowAlertDialog(onDismiss = { showPermissionDialog = false },
+        ShowAlertDialog(
+            onDismiss = { showPermissionDialog = false },
             onConfirmation = {
                 openAppInfoSettings(context)
                 showPermissionDialog = false

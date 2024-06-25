@@ -1,5 +1,6 @@
 package com.wngud.locationalarm.screen.setting
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,6 +17,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,17 +36,19 @@ import com.wngud.locationalarm.screen.AppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingScreen(navController: NavHostController) {
+fun SettingScreen(navController: NavHostController, onBackPressed: () -> Unit) {
     var sliderPosition by remember { mutableFloatStateOf(0f) }
     val coffeeDrinks = arrayOf("진동", "벨소리", "진동 + 벨소리", "이어폰")
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(coffeeDrinks[0]) }
 
+    BackHandler(onBack = {
+        onBackPressed()
+    })
+
     Scaffold(
         topBar = {
-            AppBar(title = stringResource(R.string.alarm), onBackNavClicked = {
-                navController.navigateUp()
-            })
+            AppBar(title = stringResource(R.string.setting), hasBackButton = false)
         },
         backgroundColor = MaterialTheme.colorScheme.background,
     ) {

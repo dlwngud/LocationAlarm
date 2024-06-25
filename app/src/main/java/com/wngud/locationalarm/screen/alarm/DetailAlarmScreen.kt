@@ -34,20 +34,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.NaverMap
 import com.wngud.locationalarm.screen.AppBar
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun DetailAlarmScreen() {
+fun DetailAlarmScreen(navController: NavHostController) {
     var sliderPosition by remember { mutableFloatStateOf(0f) }
     var search by rememberSaveable { mutableStateOf("") }
     var title by rememberSaveable { mutableStateOf("") }
     var content by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
-        topBar = { AppBar(title = "알람 설정") },
+        topBar = {
+            AppBar(
+                title = "알람 설정",
+                hasBackButton = true,
+                onBackNavClicked = {
+                    navController.navigateUp()
+                })
+        },
         containerColor = MaterialTheme.colorScheme.background,
     ) {
         Column(
@@ -164,5 +172,5 @@ fun DetailAlarmScreen() {
 @Preview(showBackground = true)
 @Composable
 fun DetailAlarmScreenPreview() {
-    DetailAlarmScreen()
+//    DetailAlarmScreen()
 }

@@ -1,5 +1,6 @@
 package com.wngud.locationalarm.screen.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -22,7 +23,7 @@ import com.naver.maps.map.compose.rememberFusedLocationSource
 
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onBackPressed: () -> Unit) {
     var mapProperties by remember {
         mutableStateOf(
             MapProperties(
@@ -35,6 +36,11 @@ fun HomeScreen() {
             MapUiSettings(isLocationButtonEnabled = true)
         )
     }
+
+    BackHandler(enabled = true, onBack = {
+        onBackPressed()
+    })
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -61,5 +67,5 @@ fun HomeScreen() {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+//    HomeScreen()
 }

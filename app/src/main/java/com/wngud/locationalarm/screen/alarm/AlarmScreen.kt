@@ -1,5 +1,6 @@
 package com.wngud.locationalarm.screen.alarm
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -59,14 +60,16 @@ import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.screen.AppBar
 
 @Composable
-fun AlarmScreen(navController: NavHostController) {
+fun AlarmScreen(navController: NavHostController, onBackPressed: () -> Unit) {
+
+    BackHandler(enabled = true, onBack = {
+        onBackPressed()
+    })
+
     Scaffold(
         topBar = {
             AppBar(
-                title = stringResource(R.string.alarm),
-                onBackNavClicked = {
-                    navController.navigateUp()
-                })
+                title = stringResource(R.string.alarm), hasBackButton = false)
         },
         backgroundColor = MaterialTheme.colorScheme.background,
     ) {
