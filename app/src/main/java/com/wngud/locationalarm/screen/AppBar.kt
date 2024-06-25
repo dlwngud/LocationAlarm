@@ -17,31 +17,44 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AppBar(
     title: String,
+    hasBackButton: Boolean,
     onBackNavClicked: () -> Unit = {}
 ) {
-    val navigationIcon: @Composable () -> Unit = {
-        IconButton(onClick = { onBackNavClicked() }) {
-            Icon(
-                imageVector = Icons.Filled.ArrowBack,
-                contentDescription = null
-            )
+    if(hasBackButton) {
+        val navigationIcon: @Composable () -> Unit = {
+            IconButton(onClick = { onBackNavClicked() }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = null
+                )
+            }
         }
+        TopAppBar(
+            title = {
+                Text(
+                    text = title,
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                )
+            },
+            navigationIcon = navigationIcon
+        )
+    } else {
+        TopAppBar(
+            title = {
+                Text(
+                    text = title,
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                )
+            }
+        )
     }
 
-    TopAppBar(
-        title = {
-            Text(
-                text = title,
-                modifier = Modifier
-                    .padding(start = 4.dp)
-            )
-        },
-        navigationIcon = navigationIcon
-    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun AppBarViewPreview() {
-    AppBar("제목", {})
+//    AppBar("제목", {})
 }
