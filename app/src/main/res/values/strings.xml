@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">LocationAlarm</string>
     <string name="alarm">알람</string>
+    <string name="setting">설정</string>
 </resources>
