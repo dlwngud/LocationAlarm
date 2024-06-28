@@ -3,11 +3,16 @@ package com.wngud.locationalarm.screen.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,9 +29,10 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.naver.maps.map.compose.rememberFusedLocationSource
+import kotlinx.coroutines.CoroutineScope
 
 
-@OptIn(ExperimentalNaverMapApi::class)
+@OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(onBackPressed: () -> Unit) {
     var mapProperties by remember {
@@ -46,14 +52,16 @@ fun HomeScreen(onBackPressed: () -> Unit) {
         onBackPressed()
     })
 
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val locationSource = rememberFusedLocationSource()
+    val cameraPositionState = rememberCameraPositionState()
+    var isFirstLoad by remember { mutableStateOf(true) }
+    var isMapClick by remember { mutableStateOf(LatLng(-1.0, -1.0)) }
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        val locationSource = rememberFusedLocationSource()
-        val cameraPositionState = rememberCameraPositionState()
-        var isFirstLoad by remember { mutableStateOf(true) }
-        var isMapClick by remember { mutableStateOf(LatLng(-1.0, -1.0)) }
-
         NaverMap(
             properties = mapProperties,
             uiSettings = mapUiSettings,
@@ -72,8 +80,20 @@ fun HomeScreen(onBackPressed: () -> Unit) {
         ) {
             if (isMapClick != LatLng(-1.0, -1.0)) {
                 showMarker(latLng = isMapClick)
+                showBottomSheet = true
             }
         }
+    }
+
+    if (showBottomSheet) {
+        ShowBottomSheet(
+            onDismiss = {
+                showBottomSheet = false
+                isMapClick = LatLng(-1.0, -1.0)
+            },
+            sheetState = sheetState,
+            scope = rememberCoroutineScope()
+        )
     }
 }
 
@@ -90,6 +110,19 @@ fun showMarker(latLng: LatLng) {
         outlineWidth = 2.dp,
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowBottomSheet(onDismiss: () -> Unit, sheetState: SheetState, scope: CoroutineScope) {
+    ModalBottomSheet(
+        onDismissRequest = {
+            onDismiss()
+        },
+        sheetState = sheetState
+    ) {
+        // Sheet content
+    }
 }
 
 @Preview(showBackground = true)
