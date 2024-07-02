@@ -113,7 +113,7 @@ fun DetailAlarmScreen(navController: NavHostController) {
                 value = sliderPosition,
                 onValueChange = { sliderPosition = it },
                 steps = 0,
-                valueRange = 1f..100f
+                valueRange = 1f..20f
             )
 
             OutlinedTextField(

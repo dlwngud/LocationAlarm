@@ -106,7 +106,8 @@ fun HomeScreen(onBackPressed: () -> Unit) {
                     latLng = isMapClick,
                     cameraPositionState = cameraPositionState,
                     radius = sliderPosition.toDouble() * 100,
-                    scope = rememberCoroutineScope()
+                    scope = rememberCoroutineScope(),
+                    zoom = (-sliderPosition * 0.16) + 15
                 )
                 showBottomSheet = true
             }
@@ -118,6 +119,7 @@ fun HomeScreen(onBackPressed: () -> Unit) {
             onDismiss = {
                 showBottomSheet = false
                 isMapClick = LatLng(-1.0, -1.0)
+                sliderPosition = 1f
             },
             sheetState = sheetState,
             sliderPosition = sliderPosition,
@@ -134,11 +136,12 @@ fun showMarker(
     latLng: LatLng,
     cameraPositionState: CameraPositionState,
     scope: CoroutineScope,
-    radius: Double
+    radius: Double,
+    zoom: Double
 ) {
     scope.launch {
         cameraPositionState.animate(
-            update = CameraUpdate.toCameraPosition(CameraPosition(latLng, 15.0)),
+            update = CameraUpdate.toCameraPosition(CameraPosition(latLng, zoom)),
             animation = CameraAnimation.Easing
         )
     }
@@ -190,7 +193,7 @@ fun ShowBottomSheet(
                 value = sliderPosition,
                 onValueChange = sliderChange,
                 steps = 0,
-                valueRange = 1f..100f
+                valueRange = 1f..20f
             )
 
             OutlinedTextField(
