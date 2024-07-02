@@ -79,6 +79,7 @@ fun HomeScreen(onBackPressed: () -> Unit) {
     val cameraPositionState = rememberCameraPositionState()
     var isFirstLoad by remember { mutableStateOf(true) }
     var isMapClick by remember { mutableStateOf(LatLng(-1.0, -1.0)) }
+    var sliderPosition by remember { mutableFloatStateOf(1f) }
 
     Box(
         modifier = Modifier
@@ -101,7 +102,12 @@ fun HomeScreen(onBackPressed: () -> Unit) {
             }
         ) {
             if (isMapClick != LatLng(-1.0, -1.0)) {
-                showMarker(latLng = isMapClick, cameraPositionState = cameraPositionState, scope = rememberCoroutineScope())
+                showMarker(
+                    latLng = isMapClick,
+                    cameraPositionState = cameraPositionState,
+                    radius = sliderPosition.toDouble() * 100,
+                    scope = rememberCoroutineScope()
+                )
                 showBottomSheet = true
             }
         }
@@ -114,6 +120,8 @@ fun HomeScreen(onBackPressed: () -> Unit) {
                 isMapClick = LatLng(-1.0, -1.0)
             },
             sheetState = sheetState,
+            sliderPosition = sliderPosition,
+            sliderChange = { sliderPosition = it },
             scope = rememberCoroutineScope()
         )
     }
@@ -122,7 +130,12 @@ fun HomeScreen(onBackPressed: () -> Unit) {
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun showMarker(latLng: LatLng, cameraPositionState: CameraPositionState, scope: CoroutineScope) {
+fun showMarker(
+    latLng: LatLng,
+    cameraPositionState: CameraPositionState,
+    scope: CoroutineScope,
+    radius: Double
+) {
     scope.launch {
         cameraPositionState.animate(
             update = CameraUpdate.toCameraPosition(CameraPosition(latLng, 15.0)),
@@ -134,7 +147,7 @@ fun showMarker(latLng: LatLng, cameraPositionState: CameraPositionState, scope: 
     )
     CircleOverlay(
         center = latLng,
-        radius = 100.0,
+        radius = radius,
         outlineColor = MaterialTheme.colorScheme.primary,
         outlineWidth = 2.dp,
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
@@ -143,8 +156,13 @@ fun showMarker(latLng: LatLng, cameraPositionState: CameraPositionState, scope: 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowBottomSheet(onDismiss: () -> Unit, sheetState: SheetState, scope: CoroutineScope) {
-    var sliderPosition by remember { mutableFloatStateOf(1f) }
+fun ShowBottomSheet(
+    onDismiss: () -> Unit,
+    sheetState: SheetState,
+    sliderPosition: Float,
+    sliderChange: (Float) -> Unit,
+    scope: CoroutineScope
+) {
     var title by rememberSaveable { mutableStateOf("") }
     var content by rememberSaveable { mutableStateOf("") }
 
@@ -170,7 +188,7 @@ fun ShowBottomSheet(onDismiss: () -> Unit, sheetState: SheetState, scope: Corout
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 value = sliderPosition,
-                onValueChange = { sliderPosition = it },
+                onValueChange = sliderChange,
                 steps = 0,
                 valueRange = 1f..100f
             )
