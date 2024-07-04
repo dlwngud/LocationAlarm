@@ -85,7 +85,7 @@ fun AlarmScreen(
                 .padding(it)
         ) {
             items(alarmState.alarms, key = { wish -> wish.id }) { alarm ->
-                StyledCard(alarm, navController)
+                StyledCard(alarm, navController, alarmViewModel = alarmViewModel)
             }
         }
     }
@@ -97,6 +97,7 @@ fun StyledCard(
     alarm: Alarm,
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    alarmViewModel: AlarmViewModel
 ) {
     val shape = RoundedCornerShape(16.dp)
     var showDialog by remember { mutableStateOf(false) }
@@ -104,7 +105,7 @@ fun StyledCard(
     if (showDialog) {
         ShowDialog(
             onDismissRequest = { showDialog = false },
-            onConfirmation = { /*TODO("해당 알림 삭제")*/ },
+            onConfirmation = { alarmViewModel.deleteAlarm(alarm) },
             dialogTitle = "해당 알람을 삭제하시겠습니까?",
             dialogText = "되돌릴 수 없습니다.",
             icon = Icons.Default.Warning
