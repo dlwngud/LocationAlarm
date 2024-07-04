@@ -1,11 +1,33 @@
 package com.wngud.locationalarm.domain
 
+import com.wngud.locationalarm.data.db.AlarmEntity
+
 data class Alarm(
-    val id: Long = 0,
+    val id: Long = 0L,
     val latitude: Double, // 위도
     val longitude: Double, // 경도
-    val radius: Int, // 범위 (미터)
+    val radius: Double, // 범위 (미터)
     val title: String, // 제목
     val content: String, // 내용
     val isChecked: Boolean // 활성화 여부
+)
+
+fun Alarm.toAlarmEntity(): AlarmEntity = AlarmEntity(
+    id = this.id,
+    latitude = this.latitude,
+    longitude = this.longitude,
+    radius = this.radius,
+    title = this.title,
+    content = this.content,
+    isChecked = this.isChecked
+)
+
+fun AlarmEntity.toAlarm(): Alarm = Alarm(
+    id = this.id,
+    latitude = this.latitude,
+    longitude = this.longitude,
+    radius = this.radius,
+    title = this.title,
+    content = this.content,
+    isChecked = this.isChecked
 )

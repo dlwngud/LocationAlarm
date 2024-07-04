@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,13 +50,20 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.naver.maps.map.compose.rememberFusedLocationSource
+import com.wngud.locationalarm.domain.Alarm
+import com.wngud.locationalarm.screen.alarm.AlarmViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(onBackPressed: () -> Unit) {
+fun HomeScreen(
+    onBackPressed: () -> Unit,
+    alarmViewModel: AlarmViewModel
+) {
+    val alarmState = alarmViewModel.alarmsState.collectAsState().value
+
     var mapProperties by remember {
         mutableStateOf(
             MapProperties(
@@ -80,6 +88,7 @@ fun HomeScreen(onBackPressed: () -> Unit) {
     var isFirstLoad by remember { mutableStateOf(true) }
     var isMapClick by remember { mutableStateOf(LatLng(-1.0, -1.0)) }
     var sliderPosition by remember { mutableFloatStateOf(1f) }
+    val scope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier
@@ -106,10 +115,24 @@ fun HomeScreen(onBackPressed: () -> Unit) {
                     latLng = isMapClick,
                     cameraPositionState = cameraPositionState,
                     radius = sliderPosition.toDouble() * 100,
-                    scope = rememberCoroutineScope(),
+                    scope = scope,
                     zoom = (-sliderPosition * 0.16) + 15
                 )
                 showBottomSheet = true
+            }
+
+            alarmState.alarms.forEach {
+                Marker(
+                    state = MarkerState(position = LatLng(it.latitude, it.longitude)),
+                    captionText = it.content
+                )
+                CircleOverlay(
+                    center = LatLng(it.latitude, it.longitude),
+                    radius = it.radius,
+                    outlineColor = MaterialTheme.colorScheme.primary,
+                    outlineWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                )
             }
         }
     }
@@ -124,7 +147,10 @@ fun HomeScreen(onBackPressed: () -> Unit) {
             sheetState = sheetState,
             sliderPosition = sliderPosition,
             sliderChange = { sliderPosition = it },
-            scope = rememberCoroutineScope()
+            alarmViewModel = alarmViewModel,
+            scope = rememberCoroutineScope(),
+            latLng = isMapClick,
+            radius = sliderPosition.toDouble() * 100
         )
     }
 }
@@ -161,9 +187,12 @@ fun showMarker(
 @Composable
 fun ShowBottomSheet(
     onDismiss: () -> Unit,
+    latLng: LatLng,
+    radius: Double,
     sheetState: SheetState,
     sliderPosition: Float,
     sliderChange: (Float) -> Unit,
+    alarmViewModel: AlarmViewModel,
     scope: CoroutineScope
 ) {
     var title by rememberSaveable { mutableStateOf("") }
@@ -241,7 +270,18 @@ fun ShowBottomSheet(
                     .fillMaxWidth()
                     .padding(16.dp),
                 shape = RoundedCornerShape(8.dp),
-                onClick = { onDismiss() }
+                onClick = {
+                    val alarm = Alarm(
+                        latitude = latLng.latitude,
+                        longitude = latLng.longitude,
+                        radius = radius,
+                        title = title,
+                        content = content,
+                        isChecked = false
+                    )
+                    alarmViewModel.addAlarm(alarm = alarm)
+                    onDismiss()
+                }
             ) {
                 Text(text = "저장하기")
             }

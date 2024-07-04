@@ -10,13 +10,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.wngud.locationalarm.screen.alarm.AlarmScreen
+import com.wngud.locationalarm.screen.alarm.AlarmState
+import com.wngud.locationalarm.screen.alarm.AlarmViewModel
 import com.wngud.locationalarm.screen.alarm.DetailAlarmScreen
 import com.wngud.locationalarm.screen.home.HomeScreen
 import com.wngud.locationalarm.screen.setting.SettingScreen
 import kotlin.system.exitProcess
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(
+    navController: NavHostController,
+    alarmViewModel: AlarmViewModel
+) {
     val shouldExitApp = remember { mutableStateOf(false) }
 
     NavHost(navController = navController, startDestination = Screen.HomeScreen.route) {
@@ -24,7 +29,8 @@ fun Navigation(navController: NavHostController) {
             HomeScreen(
                 onBackPressed = {
                     shouldExitApp.value = true
-                }
+                },
+                alarmViewModel = alarmViewModel
             )
         }
         composable(Screen.AlarmScreen.route) {
@@ -33,7 +39,8 @@ fun Navigation(navController: NavHostController) {
                 onBackPressed = {
                     navController.popBackStack(Screen.AlarmScreen.route, false)
                     shouldExitApp.value = true
-                }
+                },
+                alarmViewModel = alarmViewModel
             )
         }
         composable(Screen.SettingScreen.route) {

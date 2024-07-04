@@ -2,8 +2,8 @@ package com.wngud.locationalarm.di
 
 import android.content.Context
 import androidx.room.Room
-import com.wngud.locationalarm.data.AlarmDao
-import com.wngud.locationalarm.data.AlarmDatabase
+import com.wngud.locationalarm.data.db.AlarmDao
+import com.wngud.locationalarm.data.db.AlarmDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

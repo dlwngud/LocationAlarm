@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,7 +61,12 @@ import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.screen.AppBar
 
 @Composable
-fun AlarmScreen(navController: NavHostController, onBackPressed: () -> Unit) {
+fun AlarmScreen(
+    navController: NavHostController,
+    onBackPressed: () -> Unit,
+    alarmViewModel: AlarmViewModel
+) {
+    val alarmState = alarmViewModel.alarmsState.collectAsState().value
 
     BackHandler(enabled = true, onBack = {
         onBackPressed()
@@ -73,25 +79,12 @@ fun AlarmScreen(navController: NavHostController, onBackPressed: () -> Unit) {
         },
         backgroundColor = MaterialTheme.colorScheme.background,
     ) {
-        val alarmList = listOf(
-            Alarm(0, 0.0, 0.0, 500, "제목1", "내용1", true),
-            Alarm(1, 0.0, 0.0, 500, "제목2", "내용2", false),
-            Alarm(2, 0.0, 0.0, 500, "제목3", "내용3", true),
-            Alarm(3, 0.0, 0.0, 500, "제목4", "내용4", true),
-            Alarm(4, 0.0, 0.0, 500, "제목5", "내용5", false),
-            Alarm(5, 0.0, 0.0, 500, "제목1", "내용1", true),
-            Alarm(6, 0.0, 0.0, 500, "제목2", "내용2", false),
-            Alarm(7, 0.0, 0.0, 500, "제목3", "내용3", true),
-            Alarm(8, 0.0, 0.0, 500, "제목4", "내용4", true),
-            Alarm(9, 0.0, 0.0, 500, "제목5", "내용5", false),
-        )
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
         ) {
-            items(alarmList, key = { wish -> wish.id }) { alarm ->
+            items(alarmState.alarms, key = { wish -> wish.id }) { alarm ->
                 StyledCard(alarm, navController)
             }
         }
