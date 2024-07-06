@@ -1,5 +1,8 @@
 package com.wngud.locationalarm.screen.alarm
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wngud.locationalarm.domain.Alarm
@@ -25,6 +28,8 @@ class AlarmViewModel @Inject constructor(
     private val _alarmsState = MutableStateFlow(AlarmState())
     val alarmsState = _alarmsState.asStateFlow()
 
+    var alarmDetailState by mutableStateOf(Alarm())
+
     init {
         loadAlarms()
     }
@@ -39,9 +44,8 @@ class AlarmViewModel @Inject constructor(
         alarmRepository.addAlarm(alarm)
     }
 
-    fun getAlarmById(id: Long) = viewModelScope.launch {
-        alarmRepository.getAlarmById(id)
-    }
+    fun getAlarmById(id: Long) = alarmRepository.getAlarmById(id)
+
 
     fun updateAlarm(alarm: Alarm) = viewModelScope.launch {
         alarmRepository.updateAlarm(alarm)

@@ -4,12 +4,12 @@ import com.wngud.locationalarm.data.db.AlarmEntity
 
 data class Alarm(
     val id: Long = 0L,
-    val latitude: Double, // 위도
-    val longitude: Double, // 경도
-    val radius: Double, // 범위 (미터)
-    val title: String, // 제목
-    val content: String, // 내용
-    val isChecked: Boolean // 활성화 여부
+    val latitude: Double = 0.0, // 위도
+    val longitude: Double = 0.0, // 경도
+    val radius: Double = 0.0, // 범위 (미터)
+    val title: String = "", // 제목
+    val content: String = "", // 내용
+    val isChecked: Boolean = false // 활성화 여부
 )
 
 fun Alarm.toAlarmEntity(): AlarmEntity = AlarmEntity(

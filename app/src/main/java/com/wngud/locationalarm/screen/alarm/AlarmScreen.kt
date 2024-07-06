@@ -118,7 +118,7 @@ fun StyledCard(
             }
 
             DismissValue.DismissedToEnd -> { // -> 방향 스와이프 (수정)
-                navController.navigate(Screen.DetailAlarmScreen.route)
+                navController.navigate(Screen.DetailAlarmScreen.createRoute(alarm.id))
                 false
             }
 

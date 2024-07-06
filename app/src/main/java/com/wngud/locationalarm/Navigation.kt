@@ -7,10 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.wngud.locationalarm.screen.alarm.AlarmScreen
-import com.wngud.locationalarm.screen.alarm.AlarmState
 import com.wngud.locationalarm.screen.alarm.AlarmViewModel
 import com.wngud.locationalarm.screen.alarm.DetailAlarmScreen
 import com.wngud.locationalarm.screen.home.HomeScreen
@@ -52,8 +53,21 @@ fun Navigation(
                 }
             )
         }
-        composable(Screen.DetailAlarmScreen.route) {
-            DetailAlarmScreen(navController = navController)
+        composable(
+            Screen.DetailAlarmScreen.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.LongType
+                    defaultValue = -1L
+                    nullable = false
+                }
+            )) { backStackEntry ->
+            val id = backStackEntry.arguments?.getLong("id") ?: -1L
+            DetailAlarmScreen(
+                navController = navController,
+                alarmViewModel = alarmViewModel,
+                id = id
+            )
         }
     }
 

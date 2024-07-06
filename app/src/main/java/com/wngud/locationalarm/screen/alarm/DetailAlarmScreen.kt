@@ -1,5 +1,7 @@
 package com.wngud.locationalarm.screen.alarm
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +24,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,15 +40,26 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.NaverMap
+import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.screen.AppBar
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun DetailAlarmScreen(navController: NavHostController) {
+fun DetailAlarmScreen(
+    navController: NavHostController,
+    alarmViewModel: AlarmViewModel,
+    id: Long
+) {
     var sliderPosition by remember { mutableFloatStateOf(1f) }
     var search by rememberSaveable { mutableStateOf("") }
     var title by rememberSaveable { mutableStateOf("") }
     var content by rememberSaveable { mutableStateOf("") }
+    if(id != -1L) {
+        val alarm = alarmViewModel.getAlarmById(id).collectAsState(initial = Alarm())
+        alarmViewModel.alarmDetailState = alarm.value
+        Log.i("알람 디테일", alarm.value.toString())
+    }
 
     Scaffold(
         topBar = {
@@ -161,7 +175,7 @@ fun DetailAlarmScreen(navController: NavHostController) {
                     .fillMaxWidth()
                     .padding(16.dp),
                 shape = RoundedCornerShape(8.dp),
-                onClick = { /*TODO*/ }
+                onClick = { navController.navigateUp() }
             ) {
                 Text(text = "저장하기")
             }

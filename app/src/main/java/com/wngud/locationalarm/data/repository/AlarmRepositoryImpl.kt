@@ -14,7 +14,7 @@ class AlarmRepositoryImpl @Inject constructor(
     private val alarmDao: AlarmDao
 ) : AlarmRepository {
 
-    override suspend fun loadAlarms(): Flow<List<Alarm>> = alarmDao.getAllAlarm().map { it.map { it.toAlarm() } }
+    override fun loadAlarms(): Flow<List<Alarm>> = alarmDao.getAllAlarm().map { it.map { it.toAlarm() } }
 
 
     override suspend fun addAlarm(alarm: Alarm) {
@@ -24,7 +24,7 @@ class AlarmRepositoryImpl @Inject constructor(
         Log.i("성공", alarmEntity.toString())
     }
 
-    override suspend fun getAlarmById(id: Long): Flow<Alarm> = alarmDao.getAlarmById(id).map { it.toAlarm() }
+    override fun getAlarmById(id: Long): Flow<Alarm> = alarmDao.getAlarmById(id).map { it.toAlarm() }
 
     override suspend fun updateAlarm(alarm: Alarm) {
         val alarmEntity = alarm.toAlarmEntity()

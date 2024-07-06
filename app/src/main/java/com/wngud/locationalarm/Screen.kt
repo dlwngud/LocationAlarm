@@ -10,5 +10,7 @@ sealed class Screen(
     object HomeScreen : Screen("homeScreen", "홈", R.drawable.baseline_home_24)
     object AlarmScreen : Screen("alarmScreen", "알람", R.drawable.baseline_alarm_on_24)
     object SettingScreen : Screen("settingScreen", "설정", R.drawable.baseline_settings_24)
-    object DetailAlarmScreen : Screen("detailAlarmScreen", "", -1)
+    object DetailAlarmScreen : Screen("detailAlarmScreen/{id}", "", -1) {
+        fun createRoute(id: Long) = "detailAlarmScreen/$id"
+    }
 }
