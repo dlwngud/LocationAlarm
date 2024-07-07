@@ -38,8 +38,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.compose.CircleOverlay
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.MapUiSettings
+import com.naver.maps.map.compose.Marker
+import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberCameraPositionState
 import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.screen.AppBar
 
@@ -55,10 +63,30 @@ fun DetailAlarmScreen(
     var search by rememberSaveable { mutableStateOf("") }
     var title by rememberSaveable { mutableStateOf("") }
     var content by rememberSaveable { mutableStateOf("") }
-    if(id != -1L) {
-        val alarm = alarmViewModel.getAlarmById(id).collectAsState(initial = Alarm())
-        alarmViewModel.alarmDetailState = alarm.value
-        Log.i("알람 디테일", alarm.value.toString())
+    var showMarker by rememberSaveable { mutableStateOf(false) }
+    val cameraPositionState = rememberCameraPositionState()
+    var mapProperties by remember {
+        mutableStateOf(
+            MapProperties()
+        )
+    }
+    var mapUiSettings by remember {
+        mutableStateOf(
+            MapUiSettings(isLocationButtonEnabled = false, isZoomControlEnabled = false)
+        )
+    }
+
+    val alarm = alarmViewModel.getAlarmById(id).collectAsState(initial = Alarm()).value
+
+    if (alarm != Alarm() && id != -1L) {
+        alarmViewModel.alarmDetailState = alarm
+        Log.i("알람 디테일", alarm.toString())
+        title = alarmViewModel.alarmDetailState.title
+        content = alarmViewModel.alarmDetailState.content
+        sliderPosition = (alarmViewModel.alarmDetailState.radius / 100).toFloat()
+        showMarker = true
+        cameraPositionState.position =
+            CameraPosition(LatLng(alarm.latitude, alarm.longitude), (-sliderPosition * 0.16) + 15)
     }
 
     Scaffold(
@@ -81,7 +109,18 @@ fun DetailAlarmScreen(
                     .fillMaxWidth()
                     .height(350.dp)
             ) {
-                NaverMap(modifier = Modifier.fillMaxSize())
+                NaverMap(
+                    modifier = Modifier.fillMaxSize(),
+                    properties = mapProperties,
+                    uiSettings = mapUiSettings,
+                    cameraPositionState = cameraPositionState
+                ) {
+                    if (showMarker) {
+                        ShowMarker(
+                            alarm = alarmViewModel.alarmDetailState
+                        )
+                    }
+                }
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -181,6 +220,24 @@ fun DetailAlarmScreen(
             }
         }
     }
+}
+
+@OptIn(ExperimentalNaverMapApi::class)
+@Composable
+fun ShowMarker(
+    alarm: Alarm
+) {
+    val latLng = LatLng(alarm.latitude, alarm.longitude)
+    Marker(
+        state = MarkerState(position = latLng),
+    )
+    CircleOverlay(
+        center = latLng,
+        radius = alarm.radius,
+        outlineColor = MaterialTheme.colorScheme.primary,
+        outlineWidth = 2.dp,
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+    )
 }
 
 @Preview(showBackground = true)
