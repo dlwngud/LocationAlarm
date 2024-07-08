@@ -195,8 +195,17 @@ fun DetailAlarmScreen(
                     .padding(16.dp),
                 shape = RoundedCornerShape(8.dp),
                 onClick = {
+                    val updatedAlarm = Alarm(
+                        id = alarm.id,
+                        latitude = alarm.latitude,
+                        longitude = alarm.longitude,
+                        radius = sliderPosition.toDouble() * 100,
+                        title = title,
+                        content = content,
+                        isChecked = alarm.isChecked
+                    )
+                    updateAlarm(updatedAlarm, alarmViewModel)
                     navController.navigateUp()
-                    TODO("저장하기")
                 }
             ) {
                 Text(text = "저장하기")
@@ -232,6 +241,10 @@ fun ShowMarker(
         outlineWidth = 2.dp,
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
     )
+}
+
+fun updateAlarm(alarm: Alarm, alarmViewModel: AlarmViewModel) {
+    alarmViewModel.updateAlarm(alarm)
 }
 
 @Preview(showBackground = true)
