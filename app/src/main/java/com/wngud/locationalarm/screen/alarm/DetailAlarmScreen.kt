@@ -1,8 +1,6 @@
 package com.wngud.locationalarm.screen.alarm
 
 import android.annotation.SuppressLint
-import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,11 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -29,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -39,7 +35,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.CameraUpdate
+import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.CircleOverlay
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
@@ -50,6 +49,7 @@ import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.screen.AppBar
+import kotlinx.coroutines.launch
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterial3Api::class)
@@ -59,8 +59,7 @@ fun DetailAlarmScreen(
     alarmViewModel: AlarmViewModel,
     id: Long
 ) {
-    var sliderPosition by remember { mutableFloatStateOf(1f) }
-    var search by rememberSaveable { mutableStateOf("") }
+    var sliderPosition by rememberSaveable { mutableFloatStateOf(1f) }
     var title by rememberSaveable { mutableStateOf("") }
     var content by rememberSaveable { mutableStateOf("") }
     var showMarker by rememberSaveable { mutableStateOf(false) }
@@ -72,19 +71,25 @@ fun DetailAlarmScreen(
     }
     var mapUiSettings by remember {
         mutableStateOf(
-            MapUiSettings(isLocationButtonEnabled = false, isZoomControlEnabled = false)
+            MapUiSettings(
+                isLocationButtonEnabled = false,
+                isZoomControlEnabled = false,
+                isScrollGesturesEnabled = false,
+                isZoomGesturesEnabled = false,
+                isTiltGesturesEnabled = false,
+                isRotateGesturesEnabled = false
+            )
         )
     }
 
     val alarm = alarmViewModel.getAlarmById(id).collectAsState(initial = Alarm()).value
 
-    if (alarm != Alarm() && id != -1L) {
+    if (alarm != Alarm() && id != -1L && !showMarker) {
         alarmViewModel.alarmDetailState = alarm
-        Log.i("알람 디테일", alarm.toString())
-        title = alarmViewModel.alarmDetailState.title
-        content = alarmViewModel.alarmDetailState.content
-        sliderPosition = (alarmViewModel.alarmDetailState.radius / 100).toFloat()
         showMarker = true
+        title = alarm.title
+        content = alarm.content
+        sliderPosition = (alarm.radius / 100).toFloat()
         cameraPositionState.position =
             CameraPosition(LatLng(alarm.latitude, alarm.longitude), (-sliderPosition * 0.16) + 15)
     }
@@ -99,10 +104,10 @@ fun DetailAlarmScreen(
                 })
         },
         containerColor = MaterialTheme.colorScheme.background,
-    ) {
+    ) { padding ->
         Column(
             modifier = Modifier
-                .padding(it)
+                .padding(padding)
         ) {
             Box(
                 modifier = Modifier
@@ -117,38 +122,13 @@ fun DetailAlarmScreen(
                 ) {
                     if (showMarker) {
                         ShowMarker(
-                            alarm = alarmViewModel.alarmDetailState
+                            alarm = alarmViewModel.alarmDetailState,
+                            cameraPositionState = cameraPositionState,
+                            radius = sliderPosition.toDouble() * 100,
+                            zoom = (-sliderPosition * 0.16) + 15
                         )
                     }
                 }
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.background),
-                    value = search,
-                    singleLine = true,
-                    onValueChange = {
-                        search = it
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Filled.Search,
-                            contentDescription = "Search Icon"
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = "장소를 입력하세요",
-                            fontWeight = FontWeight.Thin
-                        )
-                    },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent
-                    )
-                )
             }
             Row(
                 modifier = Modifier
@@ -214,7 +194,10 @@ fun DetailAlarmScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 shape = RoundedCornerShape(8.dp),
-                onClick = { navController.navigateUp() }
+                onClick = {
+                    navController.navigateUp()
+                    TODO("저장하기")
+                }
             ) {
                 Text(text = "저장하기")
             }
@@ -222,18 +205,29 @@ fun DetailAlarmScreen(
     }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun ShowMarker(
-    alarm: Alarm
+    alarm: Alarm,
+    cameraPositionState: CameraPositionState,
+    radius: Double,
+    zoom: Double,
 ) {
+    val scope = rememberCoroutineScope()
     val latLng = LatLng(alarm.latitude, alarm.longitude)
+    scope.launch {
+        cameraPositionState.animate(
+            update = CameraUpdate.toCameraPosition(CameraPosition(latLng, zoom)),
+            animation = CameraAnimation.Easing
+        )
+    }
     Marker(
         state = MarkerState(position = latLng),
     )
     CircleOverlay(
         center = latLng,
-        radius = alarm.radius,
+        radius = radius,
         outlineColor = MaterialTheme.colorScheme.primary,
         outlineWidth = 2.dp,
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
