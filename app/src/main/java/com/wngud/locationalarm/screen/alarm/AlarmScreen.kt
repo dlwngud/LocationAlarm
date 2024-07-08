@@ -139,7 +139,7 @@ fun StyledCard(
             .padding(horizontal = 8.dp)
             .clip(shape),
         dismissContent = {
-            AlarmItem(alarm, shape) {
+            AlarmItem(alarm, shape, alarmViewModel) {
                 /*TODO("알림 상세창 이동")*/
             }
         },
@@ -188,9 +188,9 @@ fun StyledCard(
 fun AlarmItem(
     alarm: Alarm,
     shape: Shape,
+    alarmViewModel: AlarmViewModel,
     onClick: () -> Unit
 ) {
-
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -215,7 +215,7 @@ fun AlarmItem(
             Switch(
                 checked = alarm.isChecked,
                 onCheckedChange = {
-                    /*TODO("체크 변화 감지)*/
+                    alarmViewModel.updateAlarm(alarm.copy(isChecked = it))
                 },
                 thumbContent = if (alarm.isChecked) {
                     {
