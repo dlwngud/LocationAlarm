@@ -1,5 +1,7 @@
 package com.wngud.locationalarm.screen.setting
 
+import android.content.Context
+import android.media.AudioManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,21 +29,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import com.wngud.locationalarm.R
 import com.wngud.locationalarm.screen.AppBar
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(navController: NavHostController, onBackPressed: () -> Unit) {
-    var sliderPosition by remember { mutableFloatStateOf(0f) }
-    val coffeeDrinks = arrayOf("진동", "벨소리", "진동 + 벨소리", "이어폰")
+    val context = LocalContext.current.applicationContext
+    val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    var sliderPosition by remember { mutableFloatStateOf(audioManager.getStreamVolume(AudioManager.STREAM_RING).toFloat()) }
+    val modeList = arrayOf("진동", "벨소리", "진동 + 벨소리", "이어폰")
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(coffeeDrinks[0]) }
+    var selectedMode by remember { mutableStateOf(modeList[0]) }
+    var selectedRingtone by remember { mutableStateOf("벨소리를 선택해주세요") }
 
     BackHandler(onBack = {
         onBackPressed()
@@ -60,7 +69,11 @@ fun SettingScreen(navController: NavHostController, onBackPressed: () -> Unit) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(text = "벨소리", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "선택한 벨소리")
+                TextButton(onClick = {
+
+                }) {
+                    Text(selectedRingtone)
+                }
             }
 
             Divider()
@@ -69,16 +82,23 @@ fun SettingScreen(navController: NavHostController, onBackPressed: () -> Unit) {
                 Text(text = "볼륨", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 Slider(
                     value = sliderPosition,
-                    onValueChange = { sliderPosition = it },
+                    onValueChange = {
+                        sliderPosition = it
+                        audioManager.setStreamVolume(
+                            AudioManager.STREAM_RING,
+                            it.toInt(),
+                            0
+                        )
+                    },
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.secondary,
                         activeTrackColor = MaterialTheme.colorScheme.secondary,
                         inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
                     ),
-                    steps = 9,
-                    valueRange = 0f..10f
+                    steps = 15,
+                    valueRange = 0f..15f
                 )
-                Text(text = sliderPosition.toString())
+                Text(text = sliderPosition.toInt().toString())
             }
 
             Divider()
@@ -94,18 +114,19 @@ fun SettingScreen(navController: NavHostController, onBackPressed: () -> Unit) {
                         expanded = !expanded
                     }) {
                         TextField(
-                            value = selectedText,
+                            value = selectedMode,
                             onValueChange = {},
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                             modifier = Modifier.menuAnchor()
                         )
 
-                        ExposedDropdownMenu(expanded = expanded,
+                        ExposedDropdownMenu(
+                            expanded = expanded,
                             onDismissRequest = { expanded = false }) {
-                            coffeeDrinks.forEach { item ->
+                            modeList.forEach { item ->
                                 DropdownMenuItem(text = { Text(text = item) }, onClick = {
-                                    selectedText = item
+                                    selectedMode = item
                                     expanded = false
                                 })
                             }
