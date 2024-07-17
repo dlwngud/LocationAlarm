@@ -16,12 +16,14 @@ import com.wngud.locationalarm.screen.alarm.AlarmViewModel
 import com.wngud.locationalarm.screen.alarm.DetailAlarmScreen
 import com.wngud.locationalarm.screen.home.HomeScreen
 import com.wngud.locationalarm.screen.setting.SettingScreen
+import com.wngud.locationalarm.screen.setting.SettingViewModel
 import kotlin.system.exitProcess
 
 @Composable
 fun Navigation(
     navController: NavHostController,
-    alarmViewModel: AlarmViewModel
+    alarmViewModel: AlarmViewModel,
+    settingViewModel: SettingViewModel
 ) {
     val shouldExitApp = remember { mutableStateOf(false) }
 
@@ -47,6 +49,7 @@ fun Navigation(
         composable(Screen.SettingScreen.route) {
             SettingScreen(
                 navController = navController,
+                settingViewModel = settingViewModel,
                 onBackPressed = {
                     navController.popBackStack(Screen.SettingScreen.route, false)
                     shouldExitApp.value = true
