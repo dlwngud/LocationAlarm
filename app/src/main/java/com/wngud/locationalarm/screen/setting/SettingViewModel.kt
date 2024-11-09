@@ -1,5 +1,7 @@
 package com.wngud.locationalarm.screen.setting
 
+import android.media.RingtoneManager
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wngud.locationalarm.domain.SettingRepository
@@ -13,13 +15,16 @@ import javax.inject.Inject
 
 data class SettingState(
     val loading: Boolean = true,
-    val isVibration: Boolean = true
+    var ringtoneUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE),
+    var ringtoneName: String = "기본 벨소리",
+    var volume: Float = 0.0f,
+    val isVibration: Boolean = true,
 )
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
-    private val settingRepository: SettingRepository
-): ViewModel() {
+    private val settingRepository: SettingRepository,
+) : ViewModel() {
     private val _settingState = MutableStateFlow(SettingState())
     val settingState = _settingState.asStateFlow()
 

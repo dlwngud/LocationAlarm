@@ -2,9 +2,14 @@ package com.wngud.locationalarm.screen.setting
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.VibrationEffect
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,7 +70,23 @@ fun SettingScreen(
     val modeList = arrayOf("진동", "벨소리", "진동 + 벨소리", "이어폰")
     var expanded by remember { mutableStateOf(false) }
     var selectedMode by remember { mutableStateOf(modeList[0]) }
-    var selectedRingtone by remember { mutableStateOf("벨소리를 선택해주세요") }
+    var selectedRingtone by remember { mutableStateOf<Uri?>(settingState.ringtoneUri) }
+    var ringtoneName by remember { mutableStateOf(settingState.ringtoneName) }
+
+    // 벨소리 선택을 위한 launcher
+    val ringtonePicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            result.data?.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)?.let { uri ->
+                selectedRingtone = uri
+                ringtoneName = RingtoneManager.getRingtone(context, uri).getTitle(context)
+
+                // 설정 저장
+                settingViewModel.updateSetting(settingState.copy(ringtoneUri = uri, ringtoneName = ringtoneName))
+            }
+        }
+    }
 
     BackHandler(onBack = {
         onBackPressed()
@@ -86,9 +107,14 @@ fun SettingScreen(
                 Text(text = "벨소리", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(onClick = {
-
+                    val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "알림음 선택")
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, selectedRingtone)
+                    }
+                    ringtonePicker.launch(intent)
                 }) {
-                    Text(selectedRingtone)
+                    Text(ringtoneName)
                 }
             }
 
