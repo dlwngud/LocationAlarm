@@ -2,8 +2,8 @@ package com.wngud.locationalarm.di
 
 import com.wngud.locationalarm.data.repository.AlarmRepositoryImpl
 import com.wngud.locationalarm.data.repository.SettingRepositoryImpl
-import com.wngud.locationalarm.domain.AlarmRepository
-import com.wngud.locationalarm.domain.SettingRepository
+import com.wngud.locationalarm.domain.repository.AlarmRepository
+import com.wngud.locationalarm.domain.repository.SettingRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

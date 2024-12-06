@@ -3,7 +3,7 @@ package com.wngud.locationalarm.data.repository
 import android.util.Log
 import com.wngud.locationalarm.data.db.AlarmDao
 import com.wngud.locationalarm.domain.Alarm
-import com.wngud.locationalarm.domain.AlarmRepository
+import com.wngud.locationalarm.domain.repository.AlarmRepository
 import com.wngud.locationalarm.domain.toAlarm
 import com.wngud.locationalarm.domain.toAlarmEntity
 import kotlinx.coroutines.flow.Flow

@@ -1,4 +1,4 @@
-package com.wngud.locationalarm.domain
+package com.wngud.locationalarm.domain.repository
 
 import com.wngud.locationalarm.screen.setting.SettingState
 import kotlinx.coroutines.flow.Flow

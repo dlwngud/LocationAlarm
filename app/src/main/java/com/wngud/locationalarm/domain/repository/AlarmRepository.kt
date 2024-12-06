@@ -1,5 +1,6 @@
-package com.wngud.locationalarm.domain
+package com.wngud.locationalarm.domain.repository
 
+import com.wngud.locationalarm.domain.Alarm
 import kotlinx.coroutines.flow.Flow
 
 interface AlarmRepository {

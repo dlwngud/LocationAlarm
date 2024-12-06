@@ -9,7 +9,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.wngud.locationalarm.domain.SettingRepository
+import com.wngud.locationalarm.domain.repository.SettingRepository
 import com.wngud.locationalarm.screen.setting.SettingState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
