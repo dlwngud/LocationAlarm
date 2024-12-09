@@ -1,7 +1,10 @@
 package com.wngud.locationalarm.domain
 
+import android.os.Parcelable
 import com.wngud.locationalarm.data.db.AlarmEntity
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Alarm(
     val id: Long = 0L,
     val latitude: Double = 0.0, // 위도
@@ -10,7 +13,7 @@ data class Alarm(
     val title: String = "", // 제목
     val content: String = "", // 내용
     val isChecked: Boolean = false // 활성화 여부
-)
+): Parcelable
 
 fun Alarm.toAlarmEntity(): AlarmEntity = AlarmEntity(
     id = this.id,
