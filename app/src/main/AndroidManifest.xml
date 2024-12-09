@@ -42,7 +42,9 @@
         </activity>
 
         <receiver android:name=".domain.geofence.GeofenceBroadcastReceiver" />
-        <service android:name=".domain.service.GeofenceService" />
+        <service
+            android:name=".domain.service.GeofenceService"
+            android:foregroundServiceType="location" />
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
