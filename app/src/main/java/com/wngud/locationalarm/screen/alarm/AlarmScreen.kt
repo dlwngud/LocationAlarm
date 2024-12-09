@@ -1,6 +1,10 @@
 package com.wngud.locationalarm.screen.alarm
 
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -39,10 +43,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +57,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,8 +65,10 @@ import androidx.navigation.NavHostController
 import com.wngud.locationalarm.R
 import com.wngud.locationalarm.Screen
 import com.wngud.locationalarm.domain.Alarm
+import com.wngud.locationalarm.domain.service.GeofenceService
 import com.wngud.locationalarm.screen.AppBar
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AlarmScreen(
     navController: NavHostController,
@@ -67,6 +76,15 @@ fun AlarmScreen(
     alarmViewModel: AlarmViewModel
 ) {
     val alarmState = alarmViewModel.alarmsState.collectAsState().value
+    val checkedAlarms = alarmState.alarms.filter { it.isChecked }
+    val updatedCheckedAlarms = rememberUpdatedState(checkedAlarms).value
+    val context = LocalContext.current
+
+    LaunchedEffect(updatedCheckedAlarms) {
+        if (updatedCheckedAlarms.isNotEmpty()) {
+            startGeofencingService(context, updatedCheckedAlarms)
+        }
+    }
 
     BackHandler(enabled = true, onBack = {
         onBackPressed()
@@ -75,7 +93,8 @@ fun AlarmScreen(
     Scaffold(
         topBar = {
             AppBar(
-                title = stringResource(R.string.alarm), hasBackButton = false)
+                title = stringResource(R.string.alarm), hasBackButton = false
+            )
         },
         backgroundColor = MaterialTheme.colorScheme.background,
     ) {
@@ -260,4 +279,11 @@ fun ShowDialog(
             ) { Text("취소") }
         }
     )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun startGeofencingService(context: Context, checkedAlarms: List<Alarm>) {
+    val serviceIntent = Intent(context, GeofenceService::class.java)
+    serviceIntent.putParcelableArrayListExtra("alarms", checkedAlarms as ArrayList)
+    context.startForegroundService(serviceIntent)
 }
