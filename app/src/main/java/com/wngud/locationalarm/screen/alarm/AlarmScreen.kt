@@ -83,6 +83,8 @@ fun AlarmScreen(
     LaunchedEffect(updatedCheckedAlarms) {
         if (updatedCheckedAlarms.isNotEmpty()) {
             startGeofencingService(context, updatedCheckedAlarms)
+        } else {
+            stopGeofencingService(context)
         }
     }
 
@@ -286,4 +288,9 @@ private fun startGeofencingService(context: Context, checkedAlarms: List<Alarm>)
     val serviceIntent = Intent(context, GeofenceService::class.java)
     serviceIntent.putParcelableArrayListExtra("alarms", checkedAlarms as ArrayList)
     context.startForegroundService(serviceIntent)
+}
+
+private fun stopGeofencingService(context: Context) {
+    val serviceIntent = Intent(context, GeofenceService::class.java)
+    context.stopService(serviceIntent)
 }
