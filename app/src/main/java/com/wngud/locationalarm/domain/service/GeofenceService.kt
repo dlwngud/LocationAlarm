@@ -2,14 +2,21 @@ package com.wngud.locationalarm.domain.service
 
 import android.annotation.SuppressLint
 import android.app.Notification
+import android.app.NotificationManager
 import android.app.Service
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
@@ -18,7 +25,9 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.wngud.locationalarm.Constants.GEOFENCE_CHANNEL_ID
 import com.wngud.locationalarm.Constants.SERVICE_CHANNEL_ID
+import com.wngud.locationalarm.R
 import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.domain.geofence.GeofenceBroadcastReceiver
 import com.wngud.locationalarm.domain.repository.AlarmRepository
@@ -37,10 +46,25 @@ class GeofenceService : Service() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
     private lateinit var geofencingClient: GeofencingClient
+    private val onNotificationDismissedReceiver = object : BroadcastReceiver() {
+        @RequiresApi(Build.VERSION_CODES.Q)
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notification = createNotification()
+            notificationManager.notify(1, notification)
+        }
+    }
+
+    private lateinit var localBroadcastManager: LocalBroadcastManager
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
-        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+        PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -50,6 +74,12 @@ class GeofenceService : Service() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         geofencingClient = LocationServices.getGeofencingClient(this)
         startLocationUpdates()
+
+        registerReceiver(
+            onNotificationDismissedReceiver,
+            IntentFilter("DISMISSED_ACTION"),
+            RECEIVER_NOT_EXPORTED // This is required on Android 14
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -120,13 +150,21 @@ class GeofenceService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
 
+    val dismissedIntent = Intent("DISMISSED_ACTION")
+        dismissedIntent.setPackage(packageName) // This is required on Android 14
+        val dismissedPendingIntent = PendingIntent.getBroadcast(
+            this,
+            1,
+            dismissedIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+
         return NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
             .setContentTitle("지오펜싱 서비스")
             .setContentText("지오펜싱이 활성화되었습니다.")
-            .setSmallIcon(android.R.drawable.ic_notification_overlay)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setOngoing(true) // 알림이 사용자가 밀어서 제거되지 않도록 설정
-            .setSound(null)
+            .setSmallIcon(R.drawable.baseline_alarm_on_24)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setDeleteIntent(dismissedPendingIntent)
             .addAction(
                 android.R.drawable.ic_delete, // STOP 버튼의 아이콘
                 "Stop", // STOP 버튼의 텍스트
@@ -202,6 +240,7 @@ class GeofenceService : Service() {
         super.onDestroy()
         stopForeground(true)
         stopSelf()
+        unregisterReceiver(onNotificationDismissedReceiver)
         fusedLocationClient.removeLocationUpdates(locationCallback)
         Log.i("geofence", "서비스 종료")
     }
