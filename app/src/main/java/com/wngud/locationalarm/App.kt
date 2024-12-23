@@ -26,7 +26,7 @@ class App: Application() {
             val serviceChannel = NotificationChannel(
                 SERVICE_CHANNEL_ID,
                 "Service",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_LOW
             ).apply {
                 setShowBadge(true)
             }
