@@ -21,9 +21,9 @@ class SettingRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : SettingRepository {
     companion object {
-        private val ALARM_VIBRATION = booleanPreferencesKey("alarm_vibration")
-        private val ALARM_RINGTONE_URI = stringPreferencesKey("alarm_ringtone_uri")
-        private val ALARM_VOLUME = floatPreferencesKey("alarm_volume")
+        val ALARM_VIBRATION = booleanPreferencesKey("alarm_vibration")
+        val ALARM_RINGTONE_URI = stringPreferencesKey("alarm_ringtone_uri")
+        val ALARM_VOLUME = floatPreferencesKey("alarm_volume")
         private val ALARM_RINGTONE_NAME = stringPreferencesKey("alarm_ringtone_name")
     }
 

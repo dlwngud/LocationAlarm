@@ -2,7 +2,9 @@ package com.wngud.locationalarm.screen.alarm
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
@@ -61,12 +63,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.navigation.NavHostController
 import com.wngud.locationalarm.R
 import com.wngud.locationalarm.Screen
 import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.domain.service.GeofenceService
 import com.wngud.locationalarm.screen.AppBar
+import com.wngud.locationalarm.screen.util.LocationPerMissionDescriptionProvider
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -106,7 +113,7 @@ fun AlarmScreen(
                 .padding(it)
         ) {
             items(alarmState.alarms, key = { wish -> wish.id }) { alarm ->
-                StyledCard(alarm, navController, alarmViewModel = alarmViewModel)
+                StyledCard(alarm, navController, alarmViewModel = alarmViewModel, context = context)
             }
         }
     }
@@ -117,6 +124,7 @@ fun AlarmScreen(
 fun StyledCard(
     alarm: Alarm,
     navController: NavHostController,
+    context: Context,
     modifier: Modifier = Modifier,
     alarmViewModel: AlarmViewModel
 ) {
@@ -160,7 +168,7 @@ fun StyledCard(
             .padding(horizontal = 8.dp)
             .clip(shape),
         dismissContent = {
-            AlarmItem(alarm, shape, alarmViewModel) {
+            AlarmItem(alarm, shape, alarmViewModel, context) {
                 /*TODO("알림 상세창 이동")*/
             }
         },
@@ -210,8 +218,11 @@ fun AlarmItem(
     alarm: Alarm,
     shape: Shape,
     alarmViewModel: AlarmViewModel,
+    context: Context,
     onClick: () -> Unit
 ) {
+    val showDialog = remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -236,7 +247,14 @@ fun AlarmItem(
             Switch(
                 checked = alarm.isChecked,
                 onCheckedChange = {
-                    alarmViewModel.updateAlarm(alarm.copy(isChecked = it))
+                    if (it) {
+                        checkLocationPermissionAndShowDialog(context,
+                            { alarmViewModel.updateAlarm(alarm.copy(isChecked = it)) },
+                            { showDialog.value = true }
+                        )
+                    } else {
+                        alarmViewModel.updateAlarm(alarm.copy(isChecked = it))
+                    }
                 },
                 thumbContent = if (alarm.isChecked) {
                     {
@@ -252,7 +270,21 @@ fun AlarmItem(
                 }
             )
         }
+    }
 
+    if (showDialog.value) {
+        PermissionDialog(
+            context = context,
+            onDismiss = { showDialog.value = false },
+            onConfirmation = {
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", context.packageName, null)
+                )
+                context.startActivity(intent)
+                showDialog.value = false
+            }
+        )
     }
 }
 
@@ -293,4 +325,49 @@ private fun startGeofencingService(context: Context, checkedAlarms: List<Alarm>)
 private fun stopGeofencingService(context: Context) {
     val serviceIntent = Intent(context, GeofenceService::class.java)
     context.stopService(serviceIntent)
+}
+
+fun checkLocationPermissionAndShowDialog(
+    context: Context,
+    onPermissionGranted: () -> Unit,
+    onPermissionDenied: () -> Unit
+) {
+    if (ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        ) == PermissionChecker.PERMISSION_GRANTED
+    ) {
+        onPermissionGranted()
+    } else {
+        onPermissionDenied()
+    }
+}
+
+@Composable
+fun PermissionDialog(
+    context: Context,
+    onDismiss: () -> Unit,
+    onConfirmation: () -> Unit
+) {
+    val text = LocationPerMissionDescriptionProvider()
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
+    ) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = text.getTitle(context)) },
+            text = { Text(text = text.getDescription(context)) },
+            confirmButton = {
+                TextButton(onClick = onConfirmation) {
+                    Text("설정으로")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("취소")
+                }
+            }
+        )
+    }
 }

@@ -8,6 +8,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("kotlin-parcelize")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 val properties = Properties()
@@ -47,7 +48,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -103,8 +104,8 @@ dependencies {
 
     // naver map
     implementation("com.naver.maps:map-sdk:3.18.0")
-    implementation ("io.github.fornewid:naver-map-compose:1.5.7")
-    implementation ("io.github.fornewid:naver-map-location:21.0.2")
+    implementation("io.github.fornewid:naver-map-compose:1.5.7")
+    implementation("io.github.fornewid:naver-map-location:21.0.2")
 
     implementation("androidx.compose.material:material:1.6.7")
 

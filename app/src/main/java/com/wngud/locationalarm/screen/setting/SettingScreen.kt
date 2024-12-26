@@ -69,7 +69,7 @@ fun SettingScreen(
 ) {
     val settingState = settingViewModel.settingState.collectAsState().value
     val context = LocalContext.current
-    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
+//    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
     val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     var sliderPosition by remember { mutableFloatStateOf(settingState.volume) }
 
@@ -77,8 +77,11 @@ fun SettingScreen(
     var ringtoneName by remember { mutableStateOf(settingState.ringtoneName) }
     var isPlaying by remember { mutableStateOf(false) }
 
-    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+//    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     var isVibrating by remember { mutableStateOf(settingState.isVibration) }
+
+//    val mediaPlayer by settingViewModel.mediaPlayer.collectAsState()
+//    val vibrator by settingViewModel.vibrator.collectAsState()
 
     // 벨소리 선택을 위한 launcher
     val ringtonePicker = rememberLauncherForActivityResult(
@@ -173,7 +176,8 @@ fun SettingScreen(
                         onCheckedChange = { isVibration ->
                             isVibrating = isVibration
                             if (isVibration) {
-                                vibrateOnce(context, vibrator)
+//                                vibrateOnce(context, vibrator)
+                                settingViewModel.vibrateOnce(context)
                             }
                             settingViewModel.updateSetting(settingState.copy(isVibration = isVibration))
                         }
@@ -182,16 +186,20 @@ fun SettingScreen(
                 TextButton(
                     onClick = {
                         if (isPlaying) {
-                            stopAlarmSound(mediaPlayer)
+                            settingViewModel.stopAlarmSound()
+//                            stopAlarmSound(mediaPlayer)
                             if (isVibrating) {
-                                stopVibration(vibrator)
+                                settingViewModel.stopVibration()
+//                                stopVibration(vibrator)
                             }
 
                             isPlaying = false
                         } else {
-                            playAlarmSound(context, mediaPlayer, sliderPosition, selectedRingtone)
+                            settingViewModel.playAlarmSound(context, sliderPosition, selectedRingtone)
+//                            playAlarmSound(context, mediaPlayer, sliderPosition, selectedRingtone)
                             if (isVibrating) {
-                                startVibration(vibrator)
+                                settingViewModel.startVibration(context)
+//                                startVibration(vibrator)
                             }
 
                             isPlaying = true

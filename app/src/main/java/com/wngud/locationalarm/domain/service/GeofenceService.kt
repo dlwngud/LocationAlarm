@@ -9,13 +9,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Geofence
@@ -25,7 +23,6 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.wngud.locationalarm.Constants.GEOFENCE_CHANNEL_ID
 import com.wngud.locationalarm.Constants.SERVICE_CHANNEL_ID
 import com.wngud.locationalarm.R
 import com.wngud.locationalarm.domain.Alarm
@@ -54,8 +51,6 @@ class GeofenceService : Service() {
             notificationManager.notify(1, notification)
         }
     }
-
-    private lateinit var localBroadcastManager: LocalBroadcastManager
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
@@ -95,6 +90,14 @@ class GeofenceService : Service() {
                 // 사용자가 STOP 버튼을 눌렀을 때 처리
                 removeGeofences()
                 stopSelf() // 서비스 중지
+                return START_NOT_STICKY
+            }
+
+            "REMOVE_GEOFENCE" -> {
+                val geofenceId = intent.getStringExtra("requestId")
+                if (geofenceId != null) {
+                    removeGeofencesByRequestId(geofenceId)
+                }
                 return START_NOT_STICKY
             }
 
@@ -150,7 +153,7 @@ class GeofenceService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
 
-    val dismissedIntent = Intent("DISMISSED_ACTION")
+        val dismissedIntent = Intent("DISMISSED_ACTION")
         dismissedIntent.setPackage(packageName) // This is required on Android 14
         val dismissedPendingIntent = PendingIntent.getBroadcast(
             this,
@@ -228,6 +231,25 @@ class GeofenceService : Service() {
         geofencingClient.removeGeofences(pendingIntent)
             .addOnSuccessListener {
                 Log.i("geofence", "지오펜싱 해제 성공")
+            }
+            .addOnFailureListener { e ->
+                Log.e("geofence", "지오펜싱 해제 실패: ${e.message}")
+            }
+    }
+
+    private fun removeGeofencesByRequestId(requestId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            alarmRepository.loadAlarms().collectLatest { alarmList ->
+                val (lat, lng) = requestId.split(", ").map { it.toDouble() }
+                val alarm = alarmList.filter { it.latitude == lat && it.longitude == lng }[0]
+                alarmRepository.updateAlarm(alarm.copy(isChecked = false))
+                cancel()
+            }
+        }
+
+        geofencingClient.removeGeofences(listOf(requestId))
+            .addOnSuccessListener {
+                Log.i("geofence", "지오펜싱 해제 성공 $requestId")
             }
             .addOnFailureListener { e ->
                 Log.e("geofence", "지오펜싱 해제 실패: ${e.message}")
