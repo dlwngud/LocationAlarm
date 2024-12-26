@@ -11,6 +11,8 @@ interface AlarmRepository {
 
     fun getAlarmById(id: Long): Flow<Alarm>
 
+    suspend fun getAlarmByLatLng(latitude: Double, longitude: Double): Flow<Alarm>
+
     suspend fun updateAlarm(alarm: Alarm)
 
     suspend fun deleteAlarm(alarm: Alarm)

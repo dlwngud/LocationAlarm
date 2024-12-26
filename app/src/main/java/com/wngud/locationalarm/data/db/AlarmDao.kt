@@ -21,6 +21,9 @@ interface AlarmDao {
     @Query("SELECT * FROM alarm_table where id=:id")
     fun getAlarmById(id: Long): Flow<AlarmEntity>
 
+    @Query("SELECT * FROM alarm_table WHERE latitude = :latitude AND longitude = :longitude")
+    fun getAlarmByLatLng(latitude: Double, longitude: Double): Flow<AlarmEntity>
+
     @Update
     suspend fun updateAlarm(alarmEntity: AlarmEntity)
 

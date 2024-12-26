@@ -31,6 +31,9 @@ class AlarmViewModel @Inject constructor(
 
     var alarmDetailState by mutableStateOf(Alarm())
 
+    private val _alarmCloseState = MutableStateFlow<Alarm?>(null)
+    val alarmCloseState = _alarmCloseState.asStateFlow()
+
     init {
         loadAlarms()
     }
@@ -47,6 +50,12 @@ class AlarmViewModel @Inject constructor(
 
     fun getAlarmById(id: Long) = alarmRepository.getAlarmById(id)
 
+    fun getAlarmByRequestId(requestId: String) = viewModelScope.launch {
+        val (lat, lng) = requestId.split(", ").map { it.toDouble() }
+        alarmRepository.getAlarmByLatLng(lat, lng).collect { alarm ->
+            _alarmCloseState.value = alarm
+        }
+    }
 
     fun updateAlarm(alarm: Alarm) = viewModelScope.launch {
         alarmRepository.updateAlarm(alarm)

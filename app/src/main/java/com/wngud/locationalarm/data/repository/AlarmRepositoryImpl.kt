@@ -26,6 +26,10 @@ class AlarmRepositoryImpl @Inject constructor(
 
     override fun getAlarmById(id: Long): Flow<Alarm> = alarmDao.getAlarmById(id).map { it.toAlarm() }
 
+    override suspend fun getAlarmByLatLng(latitude: Double, longitude: Double): Flow<Alarm> {
+        return alarmDao.getAlarmByLatLng(latitude, longitude).map { it.toAlarm() }
+    }
+
     override suspend fun updateAlarm(alarm: Alarm) {
         val alarmEntity = alarm.toAlarmEntity()
         alarmDao.updateAlarm(alarmEntity)
