@@ -31,6 +31,7 @@
             android:name=".screen.close.CloseActivity"
             android:exported="true"
             android:label="@string/title_activity_close"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.LocationAlarm">
             <intent-filter>
                 <action android:name="com.example.action.APP_ACTION" />
@@ -41,6 +42,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.LocationAlarm">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -57,6 +59,7 @@
         <activity
             android:name=".screen.permission.PermissionActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.LocationAlarm">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
