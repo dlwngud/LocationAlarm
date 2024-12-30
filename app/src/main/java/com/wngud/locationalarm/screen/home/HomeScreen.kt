@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -55,10 +56,14 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraPosition
@@ -74,6 +79,7 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.naver.maps.map.compose.rememberFusedLocationSource
+import com.wngud.locationalarm.R
 import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.screen.alarm.AlarmViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -90,6 +96,7 @@ fun HomeScreen(
 ) {
     val alarmState = alarmViewModel.alarmsState.collectAsState().value
     val searchResults = homeViewModel.searchResults.collectAsState().value
+    val isLoading = homeViewModel.isLoading.collectAsState().value
 
     var mapProperties by remember {
         mutableStateOf(
@@ -184,6 +191,7 @@ fun HomeScreen(
                 onSearchConfirmed = {
                     homeViewModel.searchLocation(searchQuery)
                 },
+                isLoading = isLoading,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
                     .shadow(4.dp, RoundedCornerShape(16.dp))
@@ -270,7 +278,7 @@ fun HomeScreen(
             latLng = isMapClick,
             radius = sliderPosition.toDouble() * 100,
             locationTitle = locationTitle,
-            onValueChange = { locationTitle = it}
+            onValueChange = { locationTitle = it }
         )
     }
 }
@@ -348,7 +356,7 @@ fun ShowBottomSheet(
 
             OutlinedTextField(
                 value = locationTitle,
-                onValueChange = { newValue -> onValueChange(newValue)},
+                onValueChange = { newValue -> onValueChange(newValue) },
                 label = {
                     Text(
                         "알람 이름",
@@ -415,10 +423,16 @@ fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearchConfirmed: () -> Unit,
+    isLoading: Boolean,
     modifier: Modifier = Modifier,
     placeholder: String = "장소를 입력하세요"
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_animation))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever
+    )
 
     Row(
         modifier = modifier
@@ -431,14 +445,15 @@ fun SearchBar(
                 color = MaterialTheme.colorScheme.outline,
                 shape = RoundedCornerShape(16.dp)
             )
-            .padding(horizontal = 16.dp),
+            .padding(start = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Icon(
             imageVector = Icons.Default.Search,
             contentDescription = "검색",
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.clickable(false) {}
         )
 
         BasicTextField(
@@ -471,6 +486,17 @@ fun SearchBar(
                 innerTextField()
             }
         )
+
+        if (isLoading) {
+            LottieAnimation(
+                composition = composition,
+                progress = progress,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clickable(false) {},
+                alignment = Alignment.Center
+            )
+        }
     }
 }
 

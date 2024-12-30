@@ -17,8 +17,12 @@ class HomeViewModel @Inject constructor(
     private val _searchResults = MutableStateFlow<List<NaverSearchItem>>(emptyList())
     val searchResults: StateFlow<List<NaverSearchItem>> get() = _searchResults
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
+
     fun searchLocation(query: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val response = naverApiService.searchLocation(query)
                 _searchResults.value = response.items.map { item ->
@@ -26,6 +30,8 @@ class HomeViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                _isLoading.value = false
             }
         }
     }
