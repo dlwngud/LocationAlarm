@@ -14,6 +14,8 @@ plugins {
 val properties = Properties()
 properties.load(FileInputStream(rootProject.file("local.properties")))
 val naverClientId: String = properties.getProperty("naver_client_id")
+val clientId: String = properties.getProperty("client_id")
+val clientSecret: String = properties.getProperty("client_secret")
 
 android {
     namespace = "com.wngud.locationalarm"
@@ -27,6 +29,8 @@ android {
         versionName = "1.0"
 
         buildConfigField("String", "NAVER_CLIENT_ID", naverClientId)
+        buildConfigField("String", "CLIENT_ID", clientId)
+        buildConfigField("String", "CLIENT_SECRET", clientSecret)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -122,4 +126,9 @@ dependencies {
 
     // lottie
     implementation("com.airbnb.android:lottie-compose:6.6.2")
+
+    // retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
 }

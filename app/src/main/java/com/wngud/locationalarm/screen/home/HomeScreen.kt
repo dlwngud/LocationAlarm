@@ -1,9 +1,11 @@
 package com.wngud.locationalarm.screen.home
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,12 +14,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -41,9 +48,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraPosition
@@ -69,9 +80,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     onBackPressed: () -> Unit,
-    alarmViewModel: AlarmViewModel
+    alarmViewModel: AlarmViewModel,
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val alarmState = alarmViewModel.alarmsState.collectAsState().value
+    val searchResults = homeViewModel.searchResults.collectAsState().value
 
     var mapProperties by remember {
         mutableStateOf(
@@ -146,14 +159,105 @@ fun HomeScreen(
         }
 
         var searchQuery by remember { mutableStateOf("") }
-        SearchBar(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it },
+
+        Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-                .shadow(4.dp, RoundedCornerShape(28.dp))
-        )
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+        ) {
+            SearchBar(
+                query = searchQuery,
+                onQueryChange = { searchQuery = it },
+                onSearchConfirmed = {
+                    homeViewModel.searchLocation(searchQuery)
+                },
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .shadow(4.dp, RoundedCornerShape(16.dp))
+            )
+
+            if (searchResults.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.background)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                ) {
+                    items(searchResults) { result ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp)
+                                .clickable {
+                                    Log.d("dddd", result.title)
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = result.title,
+                                    maxLines = 1,
+                                    fontSize = 16.sp
+                                )
+                                if (result.roadAddress.isNotEmpty()) {
+                                    Text(
+                                        text = result.roadAddress,
+                                        maxLines = 1,
+                                        color = Color.Gray,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                            }
+                            Text(
+                                text = result.category,
+                                fontSize = 14.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+//                        ListItem(
+//                            headlineContent = {
+//                                Text(
+//                                    text = result.name,
+//                                    style = MaterialTheme.typography.bodyLarge
+//                                )
+//                            },
+//                            supportingContent = {
+//                                Text(
+//                                    text = result.address,
+//                                    style = MaterialTheme.typography.bodyMedium,
+//                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+//                                )
+//                            },
+//                            modifier = Modifier.clickable {
+//                                // 검색 결과 클릭 시 해당 위치로 카메라 이동
+//                                scope.launch {
+//                                    cameraPositionState.animate(
+//                                        update = CameraUpdate.scrollTo(
+//                                            LatLng(result.latitude, result.longitude)
+//                                        ).animate(CameraAnimation.Easing)
+//                                    )
+//                                }
+//                            }
+//                        )
+//                        if (searchResults.last() != result) {
+//                            HorizontalDivider(
+//                                modifier = Modifier.padding(horizontal = 16.dp),
+//                                color = MaterialTheme.colorScheme.outlineVariant
+//                            )
+//                        }
+                    }
+                }
+            }
+        }
     }
 
     if (showBottomSheet) {
@@ -312,6 +416,7 @@ fun ShowBottomSheet(
 fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
+    onSearchConfirmed: () -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "장소를 입력하세요"
 ) {
@@ -319,12 +424,12 @@ fun SearchBar(
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
-            .clip(RoundedCornerShape(28.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outline,
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(16.dp)
             )
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -346,6 +451,14 @@ fun SearchBar(
                 color = MaterialTheme.colorScheme.onSurface
             ),
             singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    onSearchConfirmed()
+                }
+            ),
             decorationBox = { innerTextField ->
                 if (query.isEmpty()) {
                     Text(
@@ -363,5 +476,5 @@ fun SearchBar(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    SearchBar("", {})
+    SearchBar("", {}, {})
 }
