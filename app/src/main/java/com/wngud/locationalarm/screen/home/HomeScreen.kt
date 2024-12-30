@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -48,7 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -111,6 +112,12 @@ fun HomeScreen(
     var isMapClick by remember { mutableStateOf(LatLng(-1.0, -1.0)) }
     var sliderPosition by remember { mutableFloatStateOf(1f) }
     val scope = rememberCoroutineScope()
+
+    DisposableEffect(Unit) {
+        onDispose {
+            homeViewModel.initResults()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -223,37 +230,6 @@ fun HomeScreen(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             color = MaterialTheme.colorScheme.outlineVariant
                         )
-//                        ListItem(
-//                            headlineContent = {
-//                                Text(
-//                                    text = result.name,
-//                                    style = MaterialTheme.typography.bodyLarge
-//                                )
-//                            },
-//                            supportingContent = {
-//                                Text(
-//                                    text = result.address,
-//                                    style = MaterialTheme.typography.bodyMedium,
-//                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-//                                )
-//                            },
-//                            modifier = Modifier.clickable {
-//                                // 검색 결과 클릭 시 해당 위치로 카메라 이동
-//                                scope.launch {
-//                                    cameraPositionState.animate(
-//                                        update = CameraUpdate.scrollTo(
-//                                            LatLng(result.latitude, result.longitude)
-//                                        ).animate(CameraAnimation.Easing)
-//                                    )
-//                                }
-//                            }
-//                        )
-//                        if (searchResults.last() != result) {
-//                            HorizontalDivider(
-//                                modifier = Modifier.padding(horizontal = 16.dp),
-//                                color = MaterialTheme.colorScheme.outlineVariant
-//                            )
-//                        }
                     }
                 }
             }

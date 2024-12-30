@@ -30,6 +30,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun initResults() {
+        _searchResults.value = emptyList()
+    }
+
     private fun cleanTitle(title: String): String {
         return title.replace(Regex("<.*?>"), "") // HTML 태그 제거
     }
