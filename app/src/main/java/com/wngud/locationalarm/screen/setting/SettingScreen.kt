@@ -69,7 +69,6 @@ fun SettingScreen(
 ) {
     val settingState = settingViewModel.settingState.collectAsState().value
     val context = LocalContext.current
-//    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
     val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     var sliderPosition by remember { mutableFloatStateOf(settingState.volume) }
 
@@ -77,11 +76,8 @@ fun SettingScreen(
     var ringtoneName by remember { mutableStateOf(settingState.ringtoneName) }
     var isPlaying by remember { mutableStateOf(false) }
 
-//    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     var isVibrating by remember { mutableStateOf(settingState.isVibration) }
-
-//    val mediaPlayer by settingViewModel.mediaPlayer.collectAsState()
-//    val vibrator by settingViewModel.vibrator.collectAsState()
+    var preListenText by remember { mutableStateOf("미리듣기") }
 
     // 벨소리 선택을 위한 launcher
     val ringtonePicker = rememberLauncherForActivityResult(
@@ -104,6 +100,13 @@ fun SettingScreen(
         }
     }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            isPlaying = false
+            settingViewModel.stopAlarmSound()
+            settingViewModel.stopVibration()
+        }
+    }
 
     BackHandler(onBack = {
         onBackPressed()
@@ -132,6 +135,10 @@ fun SettingScreen(
                         putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "알림음 선택")
                         putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, selectedRingtone)
                     }
+                    settingViewModel.stopAlarmSound()
+                    settingViewModel.stopVibration()
+                    preListenText = "미리듣기"
+                    isPlaying = false
                     ringtonePicker.launch(intent)
                 }) {
                     Text(ringtoneName)
@@ -193,21 +200,27 @@ fun SettingScreen(
 //                                stopVibration(vibrator)
                             }
 
+                            preListenText = "미리듣기"
                             isPlaying = false
                         } else {
-                            settingViewModel.playAlarmSound(context, sliderPosition, selectedRingtone)
+                            settingViewModel.playAlarmSound(
+                                context,
+                                sliderPosition,
+                                selectedRingtone
+                            )
 //                            playAlarmSound(context, mediaPlayer, sliderPosition, selectedRingtone)
                             if (isVibrating) {
                                 settingViewModel.startVibration(context)
 //                                startVibration(vibrator)
                             }
 
+                            preListenText = "그만듣기"
                             isPlaying = true
                         }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Text(if (isPlaying) "그만듣기" else "미리듣기")
+                    Text(text = preListenText)
                 }
             }
 
