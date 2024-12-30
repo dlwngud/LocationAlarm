@@ -1,4 +1,4 @@
-package com.wngud.locationalarm.data.db
+package com.wngud.locationalarm.data.db.local
 
 import android.content.Context
 import androidx.room.Database

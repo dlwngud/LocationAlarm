@@ -1,4 +1,4 @@
-package com.wngud.locationalarm.data.db
+package com.wngud.locationalarm.data.db.local
 
 import androidx.room.Dao
 import androidx.room.Delete

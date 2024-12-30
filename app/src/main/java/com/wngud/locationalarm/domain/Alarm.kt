@@ -1,7 +1,7 @@
 package com.wngud.locationalarm.domain
 
 import android.os.Parcelable
-import com.wngud.locationalarm.data.db.AlarmEntity
+import com.wngud.locationalarm.data.db.local.AlarmEntity
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
