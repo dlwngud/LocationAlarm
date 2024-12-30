@@ -110,6 +110,7 @@ fun HomeScreen(
 
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+    var locationTitle by remember { mutableStateOf("") }
     val locationSource = rememberFusedLocationSource()
     val cameraPositionState = rememberCameraPositionState()
     var isFirstLoad by remember { mutableStateOf(true) }
@@ -209,6 +210,7 @@ fun HomeScreen(
                                 .clickable {
                                     getLatLongFromAddress(context, result.address)?.let {
                                         isMapClick = it
+                                        locationTitle = result.title
                                         homeViewModel.initResults()
                                     }
                                 },
@@ -269,7 +271,9 @@ fun HomeScreen(
             alarmViewModel = alarmViewModel,
             scope = rememberCoroutineScope(),
             latLng = isMapClick,
-            radius = sliderPosition.toDouble() * 100
+            radius = sliderPosition.toDouble() * 100,
+            locationTitle = locationTitle,
+            onValueChange = { locationTitle = it}
         )
     }
 }
@@ -312,9 +316,10 @@ fun ShowBottomSheet(
     sliderPosition: Float,
     sliderChange: (Float) -> Unit,
     alarmViewModel: AlarmViewModel,
+    locationTitle: String,
+    onValueChange: (String) -> Unit,
     scope: CoroutineScope
 ) {
-    var title by rememberSaveable { mutableStateOf("") }
     var content by rememberSaveable { mutableStateOf("") }
 
     ModalBottomSheet(
@@ -345,8 +350,8 @@ fun ShowBottomSheet(
             )
 
             OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
+                value = locationTitle,
+                onValueChange = { newValue -> onValueChange(newValue)},
                 label = {
                     Text(
                         "알람 이름",
@@ -394,7 +399,7 @@ fun ShowBottomSheet(
                         latitude = latLng.latitude,
                         longitude = latLng.longitude,
                         radius = radius,
-                        title = title,
+                        title = locationTitle,
                         content = content,
                         isChecked = false
                     )
