@@ -200,6 +200,7 @@ fun HomeScreen(
             if (searchResults.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier
+                        .shadow(4.dp, RoundedCornerShape(16.dp))
                         .background(
                             color = MaterialTheme.colorScheme.background,
                             shape = RoundedCornerShape(16.dp)
