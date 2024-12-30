@@ -1,7 +1,8 @@
 package com.wngud.locationalarm.screen.home
 
 import android.annotation.SuppressLint
-import android.util.Log
+import android.content.Context
+import android.location.Geocoder
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -49,9 +50,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,6 +78,7 @@ import com.wngud.locationalarm.domain.Alarm
 import com.wngud.locationalarm.screen.alarm.AlarmViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterial3Api::class)
@@ -112,6 +116,7 @@ fun HomeScreen(
     var isMapClick by remember { mutableStateOf(LatLng(-1.0, -1.0)) }
     var sliderPosition by remember { mutableFloatStateOf(1f) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     DisposableEffect(Unit) {
         onDispose {
@@ -178,6 +183,9 @@ fun HomeScreen(
                 onSearchConfirmed = {
                     homeViewModel.searchLocation(searchQuery)
                 },
+                onClickItem = { latLng ->
+
+                },
                 modifier = Modifier
                     .padding(bottom = 16.dp)
                     .shadow(4.dp, RoundedCornerShape(16.dp))
@@ -199,7 +207,10 @@ fun HomeScreen(
                                 .fillMaxWidth()
                                 .padding(12.dp)
                                 .clickable {
-                                    Log.d("dddd", result.title)
+                                    getLatLongFromAddress(context, result.address)?.let {
+                                        isMapClick = it
+                                        homeViewModel.initResults()
+                                    }
                                 },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -215,6 +226,15 @@ fun HomeScreen(
                                     Text(
                                         text = result.roadAddress,
                                         maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        color = Color.Gray,
+                                        fontSize = 14.sp
+                                    )
+                                } else if (result.address.isNotEmpty()) {
+                                    Text(
+                                        text = result.address,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
                                         color = Color.Gray,
                                         fontSize = 14.sp
                                     )
@@ -394,7 +414,8 @@ fun SearchBar(
     onQueryChange: (String) -> Unit,
     onSearchConfirmed: () -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "장소를 입력하세요"
+    placeholder: String = "장소를 입력하세요",
+    onClickItem: (LatLng) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -452,8 +473,16 @@ fun SearchBar(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    SearchBar("", {}, {})
+fun getLatLongFromAddress(context: Context, address: String): LatLng? {
+    val geocoder = Geocoder(context, Locale.getDefault())
+    return try {
+        val addresses = geocoder.getFromLocationName(address, 1)
+        addresses?.let {
+            val location = it[0]
+            LatLng(location.latitude, location.longitude)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null // 예외 발생 시 null 반환
+    }
 }
