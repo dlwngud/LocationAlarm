@@ -396,6 +396,8 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     placeholder: String = "장소를 입력하세요"
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -433,6 +435,7 @@ fun SearchBar(
             keyboardActions = KeyboardActions(
                 onDone = {
                     onSearchConfirmed()
+                    keyboardController?.hide()
                 }
             ),
             decorationBox = { innerTextField ->
