@@ -141,7 +141,7 @@ fun HomeScreen(
                     isFirstLoad = false
                 }
             },
-            onMapLongClick = { _, latLng ->
+            onMapClick = { _, latLng ->
                 isMapClick = latLng
             }
         ) {
@@ -183,9 +183,6 @@ fun HomeScreen(
                 onQueryChange = { searchQuery = it },
                 onSearchConfirmed = {
                     homeViewModel.searchLocation(searchQuery)
-                },
-                onClickItem = { latLng ->
-
                 },
                 modifier = Modifier
                     .padding(bottom = 16.dp)
@@ -419,8 +416,7 @@ fun SearchBar(
     onQueryChange: (String) -> Unit,
     onSearchConfirmed: () -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "장소를 입력하세요",
-    onClickItem: (LatLng) -> Unit
+    placeholder: String = "장소를 입력하세요"
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
