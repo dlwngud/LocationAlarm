@@ -229,7 +229,7 @@ fun AlarmItem(
             .clip(shape)
             .clickable { onClick() },
         elevation = 10.dp,
-        backgroundColor = Color.LightGray
+        backgroundColor = MaterialTheme.colorScheme.primaryContainer
     ) {
         Row(
             modifier = Modifier.padding(end = 12.dp),
@@ -241,8 +241,12 @@ fun AlarmItem(
                     .padding(16.dp)
                     .weight(1f)
             ) {
-                Text(text = alarm.title, fontWeight = FontWeight.ExtraBold)
-                Text(text = alarm.content)
+                Text(
+                    text = alarm.title,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Text(text = alarm.content, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
             Switch(
                 checked = alarm.isChecked,
