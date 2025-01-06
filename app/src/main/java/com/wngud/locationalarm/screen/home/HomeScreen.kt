@@ -277,6 +277,7 @@ fun HomeScreen(
                 showBottomSheet = false
                 isMapClick = LatLng(-1.0, -1.0)
                 sliderPosition = 1f
+                locationTitle = ""
             },
             sheetState = sheetState,
             sliderPosition = sliderPosition,
