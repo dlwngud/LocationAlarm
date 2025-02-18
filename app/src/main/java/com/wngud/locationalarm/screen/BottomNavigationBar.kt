@@ -2,6 +2,7 @@ package com.wngud.locationalarm.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ fun BottomNavigationBar(
     ) {
         NavigationBar(
             modifier = modifier,
+            containerColor = MaterialTheme.colorScheme.background
         ) {
             bottomScreens.forEach { item ->
                 NavigationBarItem(

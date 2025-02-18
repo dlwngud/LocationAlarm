@@ -25,8 +25,8 @@ android {
         applicationId = "com.wngud.locationalarm"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         buildConfigField("String", "NAVER_CLIENT_ID", naverClientId)
         buildConfigField("String", "CLIENT_ID", clientId)
@@ -79,6 +79,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("androidx.activity:activity-ktx:1.9.3")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

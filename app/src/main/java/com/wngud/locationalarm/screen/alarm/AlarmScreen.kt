@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -81,7 +82,8 @@ import com.wngud.locationalarm.screen.util.LocationPerMissionDescriptionProvider
 fun AlarmScreen(
     navController: NavHostController,
     onBackPressed: () -> Unit,
-    alarmViewModel: AlarmViewModel
+    alarmViewModel: AlarmViewModel,
+    paddingValues: Dp
 ) {
     val alarmState = alarmViewModel.alarmsState.collectAsState().value
     val checkedAlarms = alarmState.alarms.filter { it.isChecked }
@@ -110,6 +112,7 @@ fun AlarmScreen(
     ) {
         LazyColumn(
             modifier = Modifier
+                .padding(bottom = paddingValues)
                 .fillMaxSize()
                 .padding(it),
             contentPadding = PaddingValues(bottom = 8.dp)

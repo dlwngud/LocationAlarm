@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -186,7 +187,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                .padding(top = 32.dp, start = 16.dp, end = 16.dp)
                 .pointerInput(Unit) { detectDragGestures { change, dragAmount -> } }
         ) {
             SearchBar(
@@ -256,7 +257,7 @@ fun HomeScreen(
                                 }
                             }
                             Text(
-                                text = result.category,
+                                text = result.category.split(">")[0],
                                 fontSize = 14.sp,
                                 modifier = Modifier.align(Alignment.CenterVertically)
                             )

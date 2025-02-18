@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.naver.maps.geometry.LatLng
@@ -57,7 +58,8 @@ import kotlinx.coroutines.launch
 fun DetailAlarmScreen(
     navController: NavHostController,
     alarmViewModel: AlarmViewModel,
-    id: Long
+    id: Long,
+    paddingValues: Dp
 ) {
     var sliderPosition by rememberSaveable { mutableFloatStateOf(1f) }
     var title by rememberSaveable { mutableStateOf("") }
@@ -107,6 +109,7 @@ fun DetailAlarmScreen(
     ) { padding ->
         Column(
             modifier = Modifier
+                .padding(bottom = paddingValues)
                 .padding(padding)
         ) {
             Box(

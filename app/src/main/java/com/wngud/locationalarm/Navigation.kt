@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,7 +24,8 @@ import kotlin.system.exitProcess
 fun Navigation(
     navController: NavHostController,
     alarmViewModel: AlarmViewModel,
-    settingViewModel: SettingViewModel
+    settingViewModel: SettingViewModel,
+    paddingValues: Dp
 ) {
     val shouldExitApp = remember { mutableStateOf(false) }
 
@@ -43,7 +45,8 @@ fun Navigation(
                     navController.popBackStack(Screen.AlarmScreen.route, false)
                     shouldExitApp.value = true
                 },
-                alarmViewModel = alarmViewModel
+                alarmViewModel = alarmViewModel,
+                paddingValues = paddingValues
             )
         }
         composable(Screen.SettingScreen.route) {
@@ -53,7 +56,8 @@ fun Navigation(
                 onBackPressed = {
                     navController.popBackStack(Screen.SettingScreen.route, false)
                     shouldExitApp.value = true
-                }
+                },
+                paddingValues = paddingValues
             )
         }
         composable(
@@ -69,7 +73,8 @@ fun Navigation(
             DetailAlarmScreen(
                 navController = navController,
                 alarmViewModel = alarmViewModel,
-                id = id
+                id = id,
+                paddingValues = paddingValues
             )
         }
     }
