@@ -2,6 +2,7 @@ package com.wngud.locationalarm
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,7 +24,7 @@ fun MyApp() {
             BottomNavigationBar(navController = navController)
         }
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().padding(bottom = it.calculateBottomPadding())) {
             Navigation(
                 navController = navController,
                 alarmViewModel = alarmViewModel,

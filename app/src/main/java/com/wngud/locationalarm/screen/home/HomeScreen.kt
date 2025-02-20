@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -72,11 +74,13 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.CameraUpdate
+import com.naver.maps.map.MapView
 import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.CircleOverlay
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.MapType
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.Marker
 import com.naver.maps.map.compose.MarkerState
@@ -101,17 +105,22 @@ fun HomeScreen(
     val alarmState = alarmViewModel.alarmsState.collectAsState().value
     val searchResults = homeViewModel.searchResults.collectAsState().value
     val isLoading = homeViewModel.isLoading.collectAsState().value
+    val isDarkMode = isSystemInDarkTheme()
 
     var mapProperties by remember {
         mutableStateOf(
             MapProperties(
-                maxZoom = 18.0, minZoom = 10.0, locationTrackingMode = LocationTrackingMode.Follow
+                maxZoom = 18.0,
+                minZoom = 10.0,
+                locationTrackingMode = LocationTrackingMode.Follow,
+                mapType = if (isDarkMode) MapType.Navi else MapType.Basic,
+                isNightModeEnabled = if (isDarkMode) true else false
             )
         )
     }
     var mapUiSettings by remember {
         mutableStateOf(
-            MapUiSettings(isLocationButtonEnabled = true)
+            MapUiSettings(isLocationButtonEnabled = true, isCompassEnabled = false)
         )
     }
 
