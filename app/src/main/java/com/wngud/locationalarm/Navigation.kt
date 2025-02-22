@@ -121,12 +121,14 @@ fun Navigation(
     }
 }
 
-@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun ExitDialog(
     nativeAd: NativeAd?,
     onDismissRequest: () -> Unit
 ) {
+    val context = LocalContext.current
+    val activity = remember { context as? MainActivity }
+
     Dialog(onDismissRequest = onDismissRequest) {
         Card(
             modifier = Modifier
@@ -174,7 +176,7 @@ fun ExitDialog(
                         shape = RoundedCornerShape(16.dp),
                         onClick = {
                             onDismissRequest()
-                            exitProcess(0)
+                            activity?.finish()
                         }
                     ) {
                         Text("종료")
